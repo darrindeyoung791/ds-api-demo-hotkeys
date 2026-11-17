@@ -232,10 +232,18 @@ export const Sider = ({ mobile = false }: { mobile?: boolean }) => {
           }}
           footer={
             <>
-              <Button variant="outlined" disabled={bulkPending} onClick={() => setBulkDeleting(false)}>
+              <Button
+                variant="outlined"
+                disabled={bulkPending}
+                onClick={() => setBulkDeleting(false)}
+              >
                 {t('cancel')}
               </Button>
-              <Button variant="danger" disabled={bulkPending} onClick={() => void confirmBulkDelete()}>
+              <Button
+                variant="danger"
+                disabled={bulkPending}
+                onClick={() => void confirmBulkDelete()}
+              >
                 {t('delete')}
               </Button>
             </>

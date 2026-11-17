@@ -7,7 +7,13 @@ import styles from './Footer.module.css'
  * 页脚：声明本项目不是 DeepSeek 官方项目，并给出仓库地址。
  * compact 用于聊天页输入框下方，只保留一句短声明。
  */
-export const Footer = ({ compact = false, className }: { compact?: boolean; className?: string }) => {
+export const Footer = ({
+  compact = false,
+  className,
+}: {
+  compact?: boolean
+  className?: string
+}) => {
   const t = useTranslate()
   return (
     <footer className={clsx(styles.footer, compact && styles.compact, className)}>
