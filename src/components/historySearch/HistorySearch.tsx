@@ -1,6 +1,7 @@
 import clsx from 'clsx'
 import {
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -27,22 +28,24 @@ import { closeMobileSider } from '../sider/mobileSiderState.js'
 import { closeHistorySearch, useHistorySearch } from './historySearchState.js'
 import styles from './HistorySearch.module.css'
 
-/** 历史对话搜索：Ctrl+K 打开，输入关键词检索全部会话的提问与回答 */
+/** 历史对话搜索：Ctrl+K 打开，输入停顿后检索全部会话的提问与回答 */
 export const HistorySearch = () => {
   const open = useHistorySearch((state) => state.open)
   return open ? <HistorySearchPanel /> : null
 }
+
+/** 输入停顿后刷新结果，避免逐字输入时列表不停跳动（与官方默认的 200ms 同量级） */
+const SEARCH_DEBOUNCE_MS = 250
 
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 /** 高亮关键词：按捕获组拆分文本，奇数位即命中片段 */
 const Highlight = ({ text, query }: { text: string; query: string }) => {
   const parts = useMemo(() => {
-    const keyword = query.trim()
-    if (!keyword) {
+    if (!query) {
       return [text]
     }
-    return text.split(new RegExp(`(${escapeRegExp(keyword)})`, 'gi'))
+    return text.split(new RegExp(`(${escapeRegExp(query)})`, 'gi'))
   }, [text, query])
   return (
     <>
@@ -59,28 +62,27 @@ const Highlight = ({ text, query }: { text: string; query: string }) => {
   )
 }
 
-/**
- * 输入框与搜索关键词分开：输入框始终显示正在输入的内容，关键词只在非组词状态更新，
- * 这样英文逐字输入、删除都会立即重新匹配，输入法组词结束前不会用拼音去匹配正文。
- */
 const HistorySearchPanel = () => {
   const t = useTranslate()
   const locale = useSettings((state) => state.locale)
   const [index, setIndex] = useState<HistoryIndex | null>(null)
+  /** 输入框里的实时内容 */
   const [value, setValue] = useState('')
+  /** 停顿后真正用于搜索的关键词；每次刷新都整体替换结果，不在旧结果上追加 */
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const composingRef = useRef(false)
 
-  // 每次打开读取一次全部会话；关闭后丢弃，下次打开能包含期间新增的对话
+  // 打开时读取一次全部会话，构建本地索引
   useEffect(() => {
     let cancelled = false
     collectHistoryIndex()
-      .then((value) => {
+      .then((next) => {
         if (!cancelled) {
-          setIndex(value)
+          setIndex(next)
         }
       })
       .catch(() => {
@@ -95,21 +97,30 @@ const HistorySearchPanel = () => {
 
   useEffect(() => {
     inputRef.current?.focus()
+    return () => clearTimeout(timerRef.current)
   }, [])
 
-  const hits = useMemo(() => (index ? searchHistory(index, query) : []), [index, query])
+  const results = useMemo(() => (index ? searchHistory(index, query) : []), [index, query])
+  /** 输入已改变、还没到停顿：这时只显示搜索中，不混用上一轮结果 */
+  const pending = value.trim() !== query
 
-  // 换关键词后回到第一条
-  useEffect(() => {
+  // 结果刷新后回到第一条（列表以 query 为 key，滚动位置也会重置）
+  useLayoutEffect(() => {
     setActive(0)
+    if (listRef.current) {
+      listRef.current.scrollTop = 0
+    }
   }, [query])
 
-  // 键盘移动选中项时保持在可视区域
+  // 方向键移动选中项时保持在可视区域
   useEffect(() => {
+    if (active === 0) {
+      return
+    }
     listRef.current
       ?.querySelector<HTMLElement>('[data-active="true"]')
       ?.scrollIntoView({ block: 'nearest' })
-  }, [hits, active])
+  }, [active])
 
   const dateFormat = useMemo(
     () => new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric' }),
@@ -131,6 +142,22 @@ const HistorySearchPanel = () => {
     closeHistorySearch()
   }
 
+  /** 输入变化后安排一次搜索：清空立即生效，其余等停顿 */
+  const scheduleSearch = (text: string) => {
+    clearTimeout(timerRef.current)
+    const keyword = text.trim()
+    if (!keyword) {
+      setQuery('')
+      return
+    }
+    timerRef.current = setTimeout(() => {
+      if (composingRef.current) {
+        return
+      }
+      setQuery(keyword)
+    }, SEARCH_DEBOUNCE_MS)
+  }
+
   const onKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
     // Ctrl / ⌘ 组合交给全局快捷键（切换会话、开关设置），浮层只处理单独按键
     if (event.nativeEvent.isComposing || event.ctrlKey || event.metaKey) {
@@ -142,16 +169,29 @@ const HistorySearchPanel = () => {
       return
     }
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-      if (hits.length === 0) {
+      if (results.length === 0) {
         return
       }
       event.preventDefault()
       const delta = event.key === 'ArrowDown' ? 1 : -1
-      setActive((current) => (current + delta + hits.length) % hits.length)
+      setActive((current) => (current + delta + results.length) % results.length)
       return
     }
     if (event.key === 'Enter') {
-      const hit = hits[active] ?? hits[0]
+      // 停顿未到就回车：立即用当前输入搜索，直接打开第一条
+      const keyword = value.trim()
+      if (keyword !== query) {
+        clearTimeout(timerRef.current)
+        const immediate = index && keyword ? searchHistory(index, keyword) : []
+        setQuery(keyword)
+        const first = immediate[0]
+        if (first) {
+          event.preventDefault()
+          openHit(first)
+        }
+        return
+      }
+      const hit = results[active] ?? results[0]
       if (hit) {
         event.preventDefault()
         openHit(hit)
@@ -187,23 +227,24 @@ const HistorySearchPanel = () => {
               const text = event.target.value
               setValue(text)
               // 优先用事件自带的 isComposing：即使浏览器漏发 compositionend，
-              // 之后的普通输入也会立即恢复搜索，不会一直卡在「组词中」
+              // 之后的普通输入也会恢复搜索，不会一直卡在「组词中」
               const native = event.nativeEvent as InputEvent
               const composing =
                 typeof native.isComposing === 'boolean' ? native.isComposing : composingRef.current
               composingRef.current = composing
               if (!composing) {
-                setQuery(text)
+                scheduleSearch(text)
               }
             }}
             onCompositionStart={() => {
               composingRef.current = true
+              clearTimeout(timerRef.current)
             }}
             onCompositionEnd={(event) => {
               composingRef.current = false
               const text = event.currentTarget.value
               setValue(text)
-              setQuery(text)
+              scheduleSearch(text)
             }}
             onBlur={() => {
               // 组词中失焦时可能收不到 compositionend，避免状态停在组词中
@@ -217,6 +258,7 @@ const HistorySearchPanel = () => {
           />
         </div>
         <div
+          key={query}
           ref={listRef}
           className={styles.list}
           role="listbox"
@@ -224,16 +266,18 @@ const HistorySearchPanel = () => {
         >
           {index === null ? (
             <div className={styles.empty}>{t('historySearchLoading')}</div>
-          ) : query.trim() === '' ? (
+          ) : pending ? (
+            <div className={styles.empty}>{t('historySearchSearching')}</div>
+          ) : query === '' ? (
             <div className={styles.empty}>
               {index.messages.length === 0
                 ? t('historySearchNoSessions')
                 : t('historySearchHint')}
             </div>
-          ) : hits.length === 0 ? (
+          ) : results.length === 0 ? (
             <div className={styles.empty}>{t('historySearchEmpty')}</div>
           ) : (
-            hits.map((hit, position) => (
+            results.map((hit, position) => (
               <button
                 key={hit.key}
                 type="button"

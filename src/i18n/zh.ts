@@ -177,6 +177,7 @@ export const zh = {
   historySearchPlaceholder: '搜索对话内容...',
   historySearchLoading: '正在读取历史对话...',
   historySearchEmpty: '暂无相关结果',
+  historySearchSearching: '搜索中...',
   historySearchHint: '输入关键词搜索对话内容',
   historySearchNoSessions: '暂无历史对话',
   aboutVersion: '版本 {version}',

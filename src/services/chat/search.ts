@@ -36,8 +36,6 @@ export type HistorySearchHit = {
   snippet: string
 }
 
-/** 结果条数上限，避免长历史一次渲染过多行 */
-const RESULT_LIMIT = 50
 /** 摘要窗口：命中位置前后保留的字符数 */
 const SNIPPET_BEFORE = 24
 const SNIPPET_AFTER = 96
@@ -122,5 +120,6 @@ export const searchHistory = (index: HistoryIndex, rawQuery: string): HistorySea
     })
   }
 
-  return hits.sort((a, b) => b.createdAt - a.createdAt).slice(0, RESULT_LIMIT)
+  // 全部命中都返回（不再截断），按时间倒序；结果由界面整体替换
+  return hits.sort((a, b) => b.createdAt - a.createdAt)
 }
