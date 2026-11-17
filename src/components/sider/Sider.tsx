@@ -1,7 +1,12 @@
 import clsx from 'clsx'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from '../../i18n/index.js'
-import { IconPanelLeftOutline16, IconSettingsOutline16, NewChatIcon } from '../base/icons.js'
+import {
+  IconPanelLeftOutline16,
+  IconSearchOutline16,
+  IconSettingsOutline16,
+  NewChatIcon,
+} from '../base/icons.js'
 import { setSiderCollapsed } from '../../services/settings.js'
 import { groupSessions } from '../../services/chat/sessionGroups.js'
 import { newChat, removeSession, useChatStore } from '../../services/chat/store.js'
@@ -10,12 +15,13 @@ import { Button } from '../base/Button.js'
 import { IconButton } from '../base/IconButton.js'
 import { Modal } from '../base/Modal.js'
 import { showToast } from '../base/toastState.js'
+import { openHistorySearch } from '../historySearch/historySearchState.js'
 import { openSettings } from '../settings/settingsDialogState.js'
 import { closeMobileSider, useMobileSider } from './mobileSiderState.js'
 import { SessionItem } from './SessionItem.js'
 import styles from './Sider.module.css'
 
-/** 展开的侧边栏：名称与收起按钮、开启新对话、按时间分组的会话列表、底部设置；移动端放在抽屉里，收起按钮关闭抽屉 */
+/** 展开的侧边栏：名称、搜索与收起按钮、开启新对话、按时间分组的会话列表、底部设置；移动端放在抽屉里，收起按钮关闭抽屉 */
 export const Sider = ({ mobile = false }: { mobile?: boolean }) => {
   const t = useTranslate()
   const sessions = useChatStore((state) => state.sessions)
@@ -53,13 +59,22 @@ export const Sider = ({ mobile = false }: { mobile?: boolean }) => {
     <div className={clsx(styles.sider, mobile && styles.mobile)}>
       <div className={styles.top}>
         <div className={styles.appName}>{t('appName')}</div>
-        <IconButton
-          size="m"
-          icon={<IconPanelLeftOutline16 />}
-          tooltip={t('collapseSiderbarButton')}
-          tooltipPlacement="bottom"
-          onClick={() => (mobile ? closeMobileSider() : setSiderCollapsed(true))}
-        />
+        <div className={styles.topActions}>
+          <IconButton
+            size="m"
+            icon={<IconSearchOutline16 />}
+            tooltip={t('historySearchTitle')}
+            tooltipPlacement="bottom"
+            onClick={openHistorySearch}
+          />
+          <IconButton
+            size="m"
+            icon={<IconPanelLeftOutline16 />}
+            tooltip={t('collapseSiderbarButton')}
+            tooltipPlacement="bottom"
+            onClick={() => (mobile ? closeMobileSider() : setSiderCollapsed(true))}
+          />
+        </div>
       </div>
       <button
         type="button"
