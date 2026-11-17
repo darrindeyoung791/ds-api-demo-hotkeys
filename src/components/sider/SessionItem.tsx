@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { memo, useEffect, useRef, useState } from 'react'
+import { memo, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslate } from '../../i18n/index.js'
 import {
   IconCheckOutline16,
@@ -37,8 +37,9 @@ export const SessionItem = memo(function SessionItem({
   const itemRef = useRef<HTMLDivElement>(null)
   const displayTitle = session.title || t('untitledChat')
 
-  // 切换会话（包括 Ctrl+↑/↓）后，让当前会话留在侧边栏的可视范围内
-  useEffect(() => {
+  // 切换会话（包括 Ctrl+↑/↓）后，让当前会话留在侧边栏的可视范围内；
+  // 在绘制前滚动，避免高亮先出现在可视区外再被拉回来
+  useLayoutEffect(() => {
     if (active) {
       itemRef.current?.scrollIntoView({ block: 'nearest' })
     }

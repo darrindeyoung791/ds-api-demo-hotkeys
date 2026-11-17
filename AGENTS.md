@@ -65,7 +65,7 @@ src/
 ### 状态与数据流
 
 - 全局状态用 **zustand**，store 按功能就近放置：`useSettings`（localStorage 设置）、`useChatStore`（会话）、`useDrafts`（草稿）、`useUploads`（上传任务）、以及 UI 级的 `useToast` / `useSettingsDialog` / `useSearchPanel` / `useHistorySearch` / `useSessionNavigation` / `useMobileSider`。
-- 快捷键切换会话是「先高亮、后加载」：`sider/sessionNavigationState.ts` 记下待定会话，松手约 180ms 后才 `selectSession`，避免连按时反复读取消息；任何真正改变 `activeId` 的操作都会清掉待定高亮。
+- 快捷键切换会话是「先高亮、后加载」：`sider/sessionNavigationState.ts` 记下待定会话，松手约 60ms 后才 `selectSession`；按住时由 `app/shortcuts.ts` 自己的重复计时器（约 320ms 后每 60ms 一格）持续移动高亮，忽略系统按键重复，滚动用 `useLayoutEffect` 在绘制前跟上，避免连按时反复读取消息或高亮跑出可视区。
 - 约定：store 文件暴露 `useXxx` 及一组命令式函数（如 `sendMessage`、`openSettings`、`showToast`），组件只订阅需要的最小切片；**非组件代码用 `getState()` / `setState()`，不要为读状态引入 React**。
 - 界面文案统一走 i18n：组件内 `useTranslate()`，普通函数内 `translate()`。
 

@@ -11,8 +11,8 @@ type SessionNavigationState = { pendingId: string | null }
 
 export const useSessionNavigation = create<SessionNavigationState>(() => ({ pendingId: null }))
 
-/** 松手后等待的时间：期间再按方向键会重新计时 */
-const COMMIT_DELAY = 180
+/** 松手后等待的时间：只用来合并同一手势内的连按，尽量短，避免切换有明显延迟 */
+const COMMIT_DELAY = 60
 let commitTimer: ReturnType<typeof setTimeout> | undefined
 
 const clearTimer = () => {
