@@ -7,9 +7,18 @@ export type Locale = 'zh-CN' | 'en-US'
 /** 主题偏好；默认跟随系统 */
 export type ThemePreference = 'light' | 'dark' | 'system'
 
-/** 本机设置，存 localStorage：API Key、语言、主题、位置、朗读音色、深度思考与智能搜索开关、侧边栏收起状态 */
+/** 界面预置的模型；模型名由服务端定义，设置里也可以填写自定义名称 */
+export const PRESET_MODELS = ['deepseek-flash', 'deepseek-v4-pro'] as const
+
+/** 默认模型：deepseek-flash 同时支持深度思考与图片输入 */
+export const DEFAULT_MODEL = PRESET_MODELS[0] as string
+
+export const isPresetModel = (model: string) => (PRESET_MODELS as readonly string[]).includes(model)
+
+/** 本机设置，存 localStorage：API Key、模型、语言、主题、位置、朗读音色、深度思考与智能搜索开关、侧边栏收起状态 */
 type Settings = {
   apiKey: string | null
+  model: string
   locale: Locale
   themePreference: ThemePreference
   location: UserLocation | null
@@ -21,6 +30,7 @@ type Settings = {
 
 const KEYS = {
   apiKey: 'chat-demo:api-key',
+  model: 'chat-demo:model',
   locale: 'chat-demo:locale',
   location: 'chat-demo:location',
   themePreference: 'chat-demo:theme-preference',
@@ -87,8 +97,12 @@ const initialThemePreference = (): ThemePreference => {
 /** 未保存过时使用服务端默认音色 stella（海星） */
 const initialTtsVoice = (): TtsVoice => (read(KEYS.ttsVoice) === 'tide' ? 'tide' : 'stella')
 
+/** 未保存过时使用默认模型；保存的自定义名称原样读取，由服务端校验是否可用 */
+const initialModel = (): string => read(KEYS.model)?.trim() || DEFAULT_MODEL
+
 export const useSettings = create<Settings>(() => ({
   apiKey: read(KEYS.apiKey),
+  model: initialModel(),
   locale: initialLocale(),
   location: initialLocation(),
   themePreference: initialThemePreference(),
@@ -97,6 +111,13 @@ export const useSettings = create<Settings>(() => ({
   search: read(KEYS.search) === 'true',
   siderCollapsed: read(KEYS.siderCollapsed) === 'true',
 }))
+
+/** 模型名去空格后保存；留空时回到默认模型 */
+export const setModel = (value: string) => {
+  const model = value.trim() || DEFAULT_MODEL
+  write(KEYS.model, model === DEFAULT_MODEL ? null : model)
+  useSettings.setState({ model })
+}
 
 export const setLocale = (locale: Locale) => {
   write(KEYS.locale, locale)

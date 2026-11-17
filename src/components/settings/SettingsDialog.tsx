@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   IconDarkOutline16,
   IconDataOutline16,
@@ -23,8 +23,10 @@ import { REPO_URL } from '../../services/links.js'
 import { regionCodes, getRegionName, provinces } from '../../services/location.js'
 import {
   isChineseBrowser,
+  isPresetModel,
   setLocale,
   setLocation,
+  setModel,
   setThemePreference,
   setTtsVoice,
   useSettings,
@@ -102,6 +104,7 @@ const SettingsContent = () => {
             <>
               <ThemeSetting />
               <LocaleSetting />
+              <ModelSetting />
               <TtsVoiceSetting />
               <LocationSetting />
             </>
@@ -317,6 +320,94 @@ const LocaleSetting = () => {
         />
       }
     />
+  )
+}
+
+/** 选择框里代表「自定义模型名」的值，不会作为模型名发送 */
+const CUSTOM_MODEL = 'custom'
+
+const MODEL_OPTIONS: { value: string; label: TranslationKey }[] = [
+  { value: 'deepseek-flash', label: 'settingsModelFlashOption' },
+  { value: 'deepseek-v4-pro', label: 'settingsModelProOption' },
+  { value: CUSTOM_MODEL, label: 'settingsModelCustomOption' },
+]
+
+/**
+ * 模型：预置 flash / pro，也可以填写任意模型名，服务端下线旧模型或新增模型时无需改代码。
+ * 只影响之后发送的消息，已发送的回答沿用原模型。
+ */
+const ModelSetting = () => {
+  const t = useTranslate()
+  const model = useSettings((state) => state.model)
+  const [custom, setCustom] = useState(() => !isPresetModel(model))
+  const [draft, setDraft] = useState(model)
+
+  // 设置被外部改动时同步输入框
+  useEffect(() => {
+    setDraft(model)
+    setCustom(!isPresetModel(model))
+  }, [model])
+
+  const commit = () => {
+    const value = draft.trim()
+    if (!value) {
+      // 没有填写名称时回到原来的选择
+      setDraft(model)
+      setCustom(!isPresetModel(model))
+      return
+    }
+    setModel(value)
+  }
+
+  return (
+    <>
+      <SettingCell
+        label={t('settingsModel')}
+        description={t('settingsModelDescription')}
+        status={null}
+        action={
+          <Select
+            ariaLabel={t('settingsModel')}
+            value={custom ? CUSTOM_MODEL : model}
+            options={MODEL_OPTIONS.map((option) => ({
+              value: option.value,
+              label: t(option.label),
+            }))}
+            onChange={(value) => {
+              if (value === CUSTOM_MODEL) {
+                setCustom(true)
+                setDraft(isPresetModel(model) ? '' : model)
+                return
+              }
+              setCustom(false)
+              setModel(value)
+            }}
+          />
+        }
+      />
+      {custom ? (
+        <div className={clsx(styles.cell, styles.row, styles.modelInputCell)}>
+          <input
+            className={styles.modelInput}
+            value={draft}
+            placeholder={t('settingsModelCustomPlaceholder')}
+            aria-label={t('settingsModelCustomPlaceholder')}
+            autoFocus
+            onChange={(event) => setDraft(event.target.value)}
+            onBlur={commit}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault()
+                commit()
+              } else if (event.key === 'Escape') {
+                setDraft(model)
+                setCustom(false)
+              }
+            }}
+          />
+        </div>
+      ) : null}
+    </>
   )
 }
 

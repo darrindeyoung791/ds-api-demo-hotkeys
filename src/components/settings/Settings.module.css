@@ -108,6 +108,33 @@
   padding: 0 13px;
 }
 
+.modelInputCell {
+  padding: 0 0 14px;
+}
+
+.modelInput {
+  box-sizing: border-box;
+  width: min(320px, 100%);
+  height: var(--ds-control-height-l);
+  padding: 0 14px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 22px;
+  background: transparent;
+  color: var(--dsw-alias-label-primary);
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color var(--ds-transition-duration) var(--ds-ease-in-out);
+
+  &::placeholder {
+    color: var(--dsw-alias-label-caption);
+  }
+
+  &:focus {
+    border-color: var(--dsw-alias-brand-primary);
+  }
+}
+
 .locationCell {
   flex-wrap: wrap;
 }
