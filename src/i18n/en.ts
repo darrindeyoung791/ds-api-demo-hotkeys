@@ -183,9 +183,9 @@ export const en = {
   ttsFailed: 'Failed to read aloud. Please try again later.',
   retry: 'Retry',
   historySearchTitle: 'Search chats',
-  historySearchPlaceholder: 'Search chats',
+  historySearchPlaceholder: 'Search chat content...',
   historySearchLoading: 'Loading chat history...',
-  historySearchEmpty: 'No matching chats',
+  historySearchEmpty: 'No relevant results',
   historySearchNoSessions: 'No chat history yet',
   aboutVersion: 'Version {version}',
   aboutDisclaimer:

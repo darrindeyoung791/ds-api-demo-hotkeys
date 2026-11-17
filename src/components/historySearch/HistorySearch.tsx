@@ -59,14 +59,21 @@ const Highlight = ({ text, query }: { text: string; query: string }) => {
   )
 }
 
+/** 输入停顿后再搜索，与官方默认的 200ms 一致，避免每个按键都重排一次结果 */
+const SEARCH_DEBOUNCE_MS = 200
+
 const HistorySearchPanel = () => {
   const t = useTranslate()
   const locale = useSettings((state) => state.locale)
   const [index, setIndex] = useState<HistoryIndex | null>(null)
+  /** 输入框里的实时内容；query 是防抖后真正用于搜索的关键词 */
+  const [value, setValue] = useState('')
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const composingRef = useRef(false)
 
   // 每次打开读取一次全部会话；关闭后丢弃，下次打开能包含期间新增的对话
   useEffect(() => {
@@ -89,7 +96,13 @@ const HistorySearchPanel = () => {
 
   useEffect(() => {
     inputRef.current?.focus()
+    return () => clearTimeout(timerRef.current)
   }, [])
+
+  const scheduleQuery = (text: string) => {
+    clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => setQuery(text), SEARCH_DEBOUNCE_MS)
+  }
 
   const hits = useMemo(() => (index ? searchHistory(index, query) : []), [index, query])
 
@@ -145,7 +158,14 @@ const HistorySearchPanel = () => {
       return
     }
     if (event.key === 'Enter') {
-      const hit = hits[active]
+      // 防抖未到就回车时，用输入框里的最新内容重新匹配，避免选中上一次关键词的结果
+      const keyword = value
+      const results = index ? searchHistory(index, keyword) : hits
+      if (keyword !== query) {
+        clearTimeout(timerRef.current)
+        setQuery(keyword)
+      }
+      const hit = results[active] ?? results[0]
       if (hit) {
         event.preventDefault()
         openHit(hit)
@@ -172,12 +192,28 @@ const HistorySearchPanel = () => {
           <input
             ref={inputRef}
             className={styles.input}
-            value={query}
+            value={value}
             placeholder={t('historySearchPlaceholder')}
             aria-label={t('historySearchPlaceholder')}
             autoComplete="off"
             spellCheck={false}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              const text = event.target.value
+              setValue(text)
+              // 输入法组词期间先不搜索，等 compositionend 提交，避免用拼音匹配正文
+              if (!composingRef.current) {
+                scheduleQuery(text)
+              }
+            }}
+            onCompositionStart={() => {
+              composingRef.current = true
+            }}
+            onCompositionEnd={(event) => {
+              composingRef.current = false
+              const text = event.currentTarget.value
+              setValue(text)
+              scheduleQuery(text)
+            }}
           />
           <IconButton
             icon={<IconCloseOutline16 />}

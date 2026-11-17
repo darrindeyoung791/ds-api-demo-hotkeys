@@ -174,9 +174,9 @@ export const zh = {
   ttsFailed: '朗读失败，请稍后再试',
   retry: '重试',
   historySearchTitle: '搜索历史对话',
-  historySearchPlaceholder: '搜索历史对话',
+  historySearchPlaceholder: '搜索聊天内容',
   historySearchLoading: '正在读取历史对话...',
-  historySearchEmpty: '未找到相关对话',
+  historySearchEmpty: '未找到相关内容',
   historySearchNoSessions: '暂无历史对话',
   aboutVersion: '版本 {version}',
   aboutDisclaimer:

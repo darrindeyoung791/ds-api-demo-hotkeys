@@ -7,6 +7,8 @@ import type { Message, Session } from './types.js'
 /**
  * 历史对话搜索索引。文本在建立索引时折叠空白，摘要窗口与命中判断都基于同一份字符串；
  * 索引只在打开搜索浮层时构建一次，输入时只在内存中匹配。
+ *
+ * 与官方一致，只匹配消息正文（标题本身也来自正文），不单独匹配标题。
  */
 
 export type HistoryMessageEntry = {
@@ -18,7 +20,7 @@ export type HistoryMessageEntry = {
   createdAt: number
 }
 
-/** 会话级记录：空搜索时的「最近对话」，以及只命中标题时的结果 */
+/** 会话级记录：没有关键词时展示的「最近对话」 */
 export type HistorySessionEntry = {
   sessionId: string
   title: string
@@ -125,7 +127,7 @@ const buildSnippet = (text: string, at: number, length: number) => {
   return `${start > 0 ? '…' : ''}${text.slice(start, end)}${end < text.length ? '…' : ''}`
 }
 
-/** 正文逐条匹配；正文没命中的会话再按标题匹配。结果按时间倒序。 */
+/** 正文逐条匹配，结果按时间倒序；空关键词展示最近打开的会话。 */
 export const searchHistory = (index: HistoryIndex, rawQuery: string): HistorySearchHit[] => {
   const query = normalize(rawQuery)
   if (!query) {
@@ -134,13 +136,11 @@ export const searchHistory = (index: HistoryIndex, rawQuery: string): HistorySea
 
   const needle = query.toLowerCase()
   const hits: HistorySearchHit[] = []
-  const matched = new Set<string>()
   for (const entry of index.messages) {
     const at = entry.text.toLowerCase().indexOf(needle)
     if (at < 0) {
       continue
     }
-    matched.add(entry.sessionId)
     hits.push({
       key: `message:${entry.messageId}`,
       sessionId: entry.sessionId,
@@ -149,13 +149,6 @@ export const searchHistory = (index: HistoryIndex, rawQuery: string): HistorySea
       createdAt: entry.createdAt,
       snippet: buildSnippet(entry.text, at, query.length),
     })
-  }
-
-  for (const session of index.sessions) {
-    if (matched.has(session.sessionId) || !session.title.toLowerCase().includes(needle)) {
-      continue
-    }
-    hits.push(sessionEntry(session))
   }
 
   return hits.sort((a, b) => b.createdAt - a.createdAt).slice(0, RESULT_LIMIT)

@@ -64,7 +64,8 @@ src/
 
 ### 状态与数据流
 
-- 全局状态用 **zustand**，store 按功能就近放置：`useSettings`（localStorage 设置）、`useChatStore`（会话）、`useDrafts`（草稿）、`useUploads`（上传任务）、以及 UI 级的 `useToast` / `useSettingsDialog` / `useSearchPanel` / `useHistorySearch` / `useMobileSider`。
+- 全局状态用 **zustand**，store 按功能就近放置：`useSettings`（localStorage 设置）、`useChatStore`（会话）、`useDrafts`（草稿）、`useUploads`（上传任务）、以及 UI 级的 `useToast` / `useSettingsDialog` / `useSearchPanel` / `useHistorySearch` / `useSessionNavigation` / `useMobileSider`。
+- 快捷键切换会话是「先高亮、后加载」：`sider/sessionNavigationState.ts` 记下待定会话，松手约 180ms 后才 `selectSession`，避免连按时反复读取消息；任何真正改变 `activeId` 的操作都会清掉待定高亮。
 - 约定：store 文件暴露 `useXxx` 及一组命令式函数（如 `sendMessage`、`openSettings`、`showToast`），组件只订阅需要的最小切片；**非组件代码用 `getState()` / `setState()`，不要为读状态引入 React**。
 - 界面文案统一走 i18n：组件内 `useTranslate()`，普通函数内 `translate()`。
 
@@ -106,6 +107,7 @@ src/
 - 颜色、字号、控件高度、动画时长取 `theme.css` 中的 `--dsw-*` / `--ds-*` 变量，深浅色通过 `body.dark` 与 `data-ds-dark-theme` 切换；不要在组件里硬编码颜色。
 - 浮层（Menu、Modal、Select、Tooltip、HoverCard、DragMask）统一用 `createPortal` 挂到 `document.body`，定位辅助见 [anchored.ts](src/components/base/anchored.ts)。
 - 移动端断点是 768px（`useIsMobile`），输入框跟随视觉视口（`useMobileViewport`）；涉及移动端交互的改动要在窄屏下自测。
+- Ctrl+K 搜索按官方行为实现：只匹配消息正文（不单独匹配标题），输入防抖 200ms，输入法组词结束后才触发；索引在打开浮层时构建一次（[search.ts](src/services/chat/search.ts)），回车时用输入框最新内容重新匹配，避免选中上一次关键词的结果。
 - Markdown 渲染链路是「节流 → 解析 AST → 渲染」（[Markdown.tsx](src/components/markdown/Markdown.tsx)），流式文本不要绕过节流直接解析。`dangerouslySetInnerHTML` 仅出现在 Prism 高亮、KaTeX、Mermaid 三处，输入都经过本地生成或严格配置（Mermaid `securityLevel: 'strict'`）；新增用法需要单独论证。
 
 ## 代码约定（由工具强制）
