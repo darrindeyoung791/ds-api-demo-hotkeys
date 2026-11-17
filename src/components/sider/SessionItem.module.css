@@ -16,6 +16,20 @@
     color: var(--dsw-alias-brand-primary-invert);
   }
 
+  &.selected {
+    background-color: var(--dsw-alias-interactive-bg-hover);
+  }
+
+  &.selecting {
+    .action {
+      display: none;
+    }
+
+    .checkbox {
+      visibility: visible;
+    }
+  }
+
   @media (hover: hover) {
     &:not(.active):hover {
       background-color: var(--dsw-specific-sidebar-nav-item-hover);
@@ -25,6 +39,10 @@
     &.active {
       .action {
         display: flex;
+      }
+
+      .checkbox {
+        visibility: visible;
       }
     }
   }
@@ -39,10 +57,53 @@
   line-height: 18px;
 }
 
+.controls {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 4px;
+  margin-left: 4px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1.5px solid var(--dsw-alias-label-caption);
+  border-radius: 50%;
+  background: none;
+  color: var(--dsw-static-neutral-bluish-00);
+  cursor: pointer;
+  visibility: hidden;
+  outline: none;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  &.checkboxChecked {
+    border-color: var(--dsw-alias-brand-primary);
+    background-color: var(--dsw-alias-brand-primary);
+    visibility: visible;
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 2px var(--dsw-alias-button-primary-fill);
+  }
+}
+
 .action {
   display: none;
   flex-shrink: 0;
-  margin-left: 4px;
 }
 
 .renameInput {
@@ -62,6 +123,10 @@
 @media (hover: none) {
   .action {
     display: flex;
+  }
+
+  .checkbox {
+    visibility: visible;
   }
 }
 

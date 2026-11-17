@@ -188,6 +188,11 @@ export const en = {
   footerDisclaimer: 'Community demo. Not an official DeepSeek project.',
   footerCompactDisclaimer: 'Not official',
   footerRepoLink: 'GitHub',
+  selectedSessions: '{count} selected',
+  selectSession: 'Select chat',
+  deleteSelectedSessionsModalTitle: 'Delete selected chats permanently',
+  deleteSelectedSessionsDescription:
+    'The selected chats and their uploaded files cannot be recovered after deletion. Delete them?',
   latestReminderLanguage: 'English',
   settingsLocaleZhCN: 'Simplified Chinese',
   settingsLocaleEnUS: 'English',

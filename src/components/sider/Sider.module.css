@@ -86,6 +86,58 @@
   margin-right: 6px;
 }
 
+.selectionBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 40px;
+  padding: 0 4px 0 12px;
+  border-radius: 100px;
+  background-color: var(--dsw-alias-interactive-bg-hover);
+}
+
+.selectionCount {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 18px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.selectionActions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 4px;
+}
+
+.selectionCancel {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--dsw-alias-label-secondary);
+  font: inherit;
+  font-size: 13px;
+  line-height: 18px;
+  cursor: pointer;
+  outline: none;
+
+  &:hover {
+    color: var(--dsw-alias-label-primary);
+    background-color: var(--dsw-alias-interactive-bg-active);
+  }
+
+  &:focus-visible {
+    box-shadow: inset 0 0 0 2px var(--dsw-alias-button-primary-fill);
+  }
+}
+
 .listWrap {
   position: relative;
   flex: 1;

@@ -30,6 +30,54 @@ export const Sider = ({ mobile = false }: { mobile?: boolean }) => {
   const groups = useMemo(() => groupSessions(sessions, now, t), [sessions, now, t])
   const [deleting, setDeleting] = useState<SessionSummary | null>(null)
   const [deletePending, setDeletePending] = useState(false)
+  /** 多选删除：选中任意会话后进入选择状态，工具栏替换「开启新对话」 */
+  const [selected, setSelected] = useState<Set<string>>(() => new Set())
+  const [bulkDeleting, setBulkDeleting] = useState(false)
+  const [bulkPending, setBulkPending] = useState(false)
+  const selectionMode = selected.size > 0
+
+  // 会话被删除或历史被替换后，去掉已不存在的选中项
+  useEffect(() => {
+    setSelected((previous) => {
+      if (previous.size === 0) {
+        return previous
+      }
+      const next = new Set(
+        [...previous].filter((id) => sessions.some((session) => session.id === id))
+      )
+      return next.size === previous.size ? previous : next
+    })
+  }, [sessions])
+
+  const toggleSelected = (id: string) =>
+    setSelected((previous) => {
+      const next = new Set(previous)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      return next
+    })
+
+  /** 逐个删除选中的会话；失败的保留提示，成功的随会话列表一起消失 */
+  const confirmBulkDelete = async () => {
+    setBulkPending(true)
+    let failed = false
+    for (const id of selected) {
+      try {
+        failed = !(await removeSession(id)) || failed
+      } catch {
+        failed = true
+      }
+    }
+    setBulkPending(false)
+    setBulkDeleting(false)
+    setSelected(new Set())
+    if (failed) {
+      showToast({ key: 'sessionDeleteFailed', type: 'error' })
+    }
+  }
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>
@@ -76,19 +124,39 @@ export const Sider = ({ mobile = false }: { mobile?: boolean }) => {
           />
         </div>
       </div>
-      <button
-        type="button"
-        className={styles.newChat}
-        onClick={() => {
-          newChat()
-          closeMobileSider()
-        }}
-      >
-        <span className={styles.newChatIcon}>
-          <NewChatIcon />
-        </span>
-        {t('newChat')}
-      </button>
+      {selectionMode ? (
+        <div className={styles.selectionBar}>
+          <span className={styles.selectionCount}>
+            {t('selectedSessions', { count: selected.size })}
+          </span>
+          <div className={styles.selectionActions}>
+            <button
+              type="button"
+              className={styles.selectionCancel}
+              onClick={() => setSelected(new Set())}
+            >
+              {t('cancel')}
+            </button>
+            <Button variant="danger" size="s" onClick={() => setBulkDeleting(true)}>
+              {t('delete')}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          className={styles.newChat}
+          onClick={() => {
+            newChat()
+            closeMobileSider()
+          }}
+        >
+          <span className={styles.newChatIcon}>
+            <NewChatIcon />
+          </span>
+          {t('newChat')}
+        </button>
+      )}
       <div className={styles.listWrap}>
         <div className={styles.list}>
           {groups.map((group) => (
@@ -99,6 +167,9 @@ export const Sider = ({ mobile = false }: { mobile?: boolean }) => {
                   key={session.id}
                   session={session}
                   active={session.id === activeId}
+                  selectionMode={selectionMode}
+                  selected={selected.has(session.id)}
+                  onToggleSelect={() => toggleSelected(session.id)}
                   onDelete={() => setDeleting(session)}
                 />
               ))}
@@ -149,6 +220,28 @@ export const Sider = ({ mobile = false }: { mobile?: boolean }) => {
           }
         >
           {t('deleteSessionWithFilesDescription')}
+        </Modal>
+      ) : null}
+      {bulkDeleting ? (
+        <Modal
+          title={t('deleteSelectedSessionsModalTitle')}
+          onClose={() => {
+            if (!bulkPending) {
+              setBulkDeleting(false)
+            }
+          }}
+          footer={
+            <>
+              <Button variant="outlined" disabled={bulkPending} onClick={() => setBulkDeleting(false)}>
+                {t('cancel')}
+              </Button>
+              <Button variant="danger" disabled={bulkPending} onClick={() => void confirmBulkDelete()}>
+                {t('delete')}
+              </Button>
+            </>
+          }
+        >
+          {t('deleteSelectedSessionsDescription', { count: selected.size })}
         </Modal>
       ) : null}
     </div>
