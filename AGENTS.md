@@ -24,6 +24,13 @@
 - `pnpm build` 的脚本是 POSIX 写法（`rm -rf dist && NODE_ENV=production …`），在 Windows 的 pwsh/cmd 下会失败：请用 Git Bash / WSL，或改用 `$env:NODE_ENV = 'production'; pnpm exec rspack build -c rspack.config.ts`。
 - 依赖被锁在 `pnpm-lock.yaml` 中：新增或升级依赖需同步提交 lockfile，否则 CI 安装会失败。
 
+## 部署（GitHub Pages）
+
+- 推送到 `main` 触发 [pages.yml](.github/workflows/pages.yml)：`pnpm install --frozen-lockfile` → `pnpm type` → `pnpm lint` → `pnpm build` → 上传 `dist/` → `actions/deploy-pages` 发布到 <https://darrindeyoung791.github.io/ds-chat-demo/>。
+- 仓库的 Pages 来源设为 **GitHub Actions**（不是分支发布），部署环境名为 `github-pages`；发布只发生在 `main` 分支。
+- 产物资源是相对路径（`publicPath: 'auto'`），因此可以部署在仓库子路径下；不要改成绝对路径，否则 Pages 与 `file://` 打开都会失效。
+- 本仓库是 `deepseek-ai/chat-demo` 的 fork：若 Actions / Pages 处于停用状态，需要在仓库 Settings 里先启用，再推送触发部署。
+
 ## 目录与职责
 
 ```text
@@ -31,10 +38,11 @@ src/
   main.tsx             入口：ensureKatex()、setupTheme() 之后渲染 <App />
   index.html           HTML 模板（HtmlRspackPlugin 注入脚本与 application-version）
   env.d.ts             全局声明：CSS Modules、__API_ORIGIN__、Prism/KaTeX 副作用模块
-  app/                 布局（App.tsx）、主题（theme.ts / theme.css）、全局样式、视口与移动端 hook
+  app/                 布局（App.tsx）、全局快捷键（shortcuts.ts）、主题（theme.ts / theme.css）、全局样式、视口与移动端 hook
   components/
     base/              通用控件：Button、IconButton、Menu、Modal、Select、Tooltip、Toast、icons
     chatInput/         输入框、附件草稿、拖拽遮罩、语音输入与频谱
+    historySearch/     Ctrl+K 的历史对话搜索浮层与开关状态
     messages/          消息列表、用户/助手消息、分支切换、复制、朗读
     markdown/          Markdown 渲染链路、代码块、公式、Mermaid
     search/            搜索结果面板、来源卡片、悬浮卡、引用角标
@@ -56,7 +64,7 @@ src/
 
 ### 状态与数据流
 
-- 全局状态用 **zustand**，store 按功能就近放置：`useSettings`（localStorage 设置）、`useChatStore`（会话）、`useDrafts`（草稿）、`useUploads`（上传任务）、以及 UI 级的 `useToast` / `useSettingsDialog` / `useSearchPanel` / `useMobileSider`。
+- 全局状态用 **zustand**，store 按功能就近放置：`useSettings`（localStorage 设置）、`useChatStore`（会话）、`useDrafts`（草稿）、`useUploads`（上传任务）、以及 UI 级的 `useToast` / `useSettingsDialog` / `useSearchPanel` / `useHistorySearch` / `useMobileSider`。
 - 约定：store 文件暴露 `useXxx` 及一组命令式函数（如 `sendMessage`、`openSettings`、`showToast`），组件只订阅需要的最小切片；**非组件代码用 `getState()` / `setState()`，不要为读状态引入 React**。
 - 界面文案统一走 i18n：组件内 `useTranslate()`，普通函数内 `translate()`。
 
@@ -71,7 +79,7 @@ src/
 ### 请求与流式响应
 
 - 端点前缀：`${API_ORIGIN}/anthropic/v1`（Messages / Files，附 `anthropic-beta: files-api-2025-04-14`）与 `${API_ORIGIN}/v1/tools`（ASR / TTS），`API_ORIGIN` 来自构建期 `__API_ORIGIN__`（[client.ts](src/services/api/client.ts)）。
-- 请求体在 [store.ts](src/services/chat/store.ts) 的 `streamReply` 内组装：固定模型 `deepseek-flash`、固定 `system`、`thinking.enabled/disabled`、`deepseek_read_url` 常开 + `deepseek_web_search` 随设置、`safety_check.level = 'high'`；会话还没有标题时额外带 `title: { enabled: true }` 以获取自动标题。
+- 请求体在 [store.ts](src/services/chat/store.ts) 的 `streamReply` 内组装：模型取自设置（默认 `deepseek-flash`，也可填写自定义名称）、固定 `system`、`thinking.enabled/disabled`、`deepseek_read_url` 常开 + `deepseek_web_search` 随设置、`safety_check.level = 'high'`；会话还没有标题时额外带 `title: { enabled: true }` 以获取自动标题。
 - 每轮上下文由 [reply.ts](src/services/chat/reply.ts) 的 `toRequestMessages()` 拼装：只保留「提问 + 可用回答」成对的轮次，`latest_reminder` 快照**仅在内容变化时**插入（同一分支连续相同则不重复），续写时末尾补上 assistant 前缀。
 - 流是 Anthropic 兼容的 SSE（以 `message_stop` 结束，没有 `[DONE]`）。解析分三层：`sse.ts`（字节流 → 事件）→ `parseEvent.ts`（JSON → `MessageStreamEvent`）→ [reply.ts](src/services/chat/reply.ts) 的 `applyEvent()`（合并进内容块）。**遇到未知事件或未知块必须跳过而不是抛错。**
 - 流式增量按动画帧合并到内存（页面隐藏时直接 flush），落盘由 `persist()` 在关键节点触发（开始生成、结束、失败或停止），不随每个增量写磁盘。

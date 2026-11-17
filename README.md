@@ -33,6 +33,8 @@ The output is written to `dist/`. Deploy it to a static web server or open `dist
 - Streaming replies, deep thinking, smart search, link reading, and source citations; stop generation or continue eligible replies.
 - Upload, paste, or drag and drop attachments; use voice input and read replies aloud. A live audio spectrum appears in the first row of the input area while recording on mobile.
 - Markdown, syntax highlighting, KaTeX math, and Mermaid diagrams.
+- Keyboard shortcuts: Ctrl+J starts a new chat, Ctrl+K searches chat history, Ctrl+, opens Settings, and Ctrl+↑/↓ switches chats. Sidebar chats can be multi-selected and deleted in bulk.
+- Choose the model in Settings → General: `deepseek-flash`, `deepseek-v4-pro`, or a custom model name.
 - Simplified Chinese and English, light and dark themes, mobile layouts, location settings, and chat history import and export.
 
 ## Data and storage
@@ -55,7 +57,7 @@ Settings → Data → Delete all chats clears all local conversations, original 
 
 [rspack.config.ts](rspack.config.ts) uses `https://api.deepseek.com` by default. Use `createConfig({ apiOrigin, devServer })` to customize the API origin and development server proxy.
 
-Chat uses `deepseek-flash` by default through Anthropic-compatible Messages / Files APIs. Speech features use ASR / TTS endpoints. Requests include extensions for search, link reading, titles, and `latest_reminder`, so the configured service must support the corresponding capabilities. Supported attachment formats are determined by server-side validation.
+Chat uses `deepseek-flash` by default (switch models or enter a custom model name in Settings) through Anthropic-compatible Messages / Files APIs. Speech features use ASR / TTS endpoints. Requests include extensions for search, link reading, titles, and `latest_reminder`, so the configured service must support the corresponding capabilities. Supported attachment formats are determined by server-side validation.
 
 ```text
 src/

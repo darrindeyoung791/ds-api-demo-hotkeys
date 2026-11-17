@@ -33,6 +33,8 @@ pnpm build
 - 流式回答、深度思考、智能搜索、链接阅读与来源引用；支持停止和符合条件的继续生成。
 - 附件上传、粘贴与拖拽，语音输入和回复朗读；移动端录音时输入框首行显示实时频谱。
 - Markdown、代码高亮、KaTeX 公式和 Mermaid 图表。
+- 快捷键：Ctrl+J 新建对话、Ctrl+K 搜索历史对话、Ctrl+, 打开设置、Ctrl+↑/↓ 切换对话；侧边栏支持多选后批量删除。
+- 在设置 → 通用设置中选择模型：`deepseek-flash`、`deepseek-v4-pro`，或填写自定义模型名。
 - 简体中文与英文、浅色与深色主题、移动端布局、位置设置、历史导入导出。
 
 ## 数据
@@ -55,7 +57,7 @@ API Key 和设置保存在浏览器 localStorage，会话及附件原件保存�
 
 [rspack.config.ts](rspack.config.ts) 默认连接 `https://api.deepseek.com`。`createConfig({ apiOrigin, devServer })` 支持自定义 API 地址和开发服务器代理。
 
-聊天默认使用 `deepseek-flash`，通过 Anthropic 兼容的 Messages / Files API 通信；语音使用 ASR / TTS 接口。请求使用搜索、链接阅读、标题和 `latest_reminder` 等扩展，接入服务需支持相应能力。附件实际支持的格式以服务端校验为准。
+聊天默认使用 `deepseek-flash`（可在设置中切换模型或填写自定义模型名），通过 Anthropic 兼容的 Messages / Files API 通信；语音使用 ASR / TTS 接口。请求使用搜索、链接阅读、标题和 `latest_reminder` 等扩展，接入服务需支持相应能力。附件实际支持的格式以服务端校验为准。
 
 ```text
 src/
