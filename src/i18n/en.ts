@@ -14,7 +14,7 @@ export const en = {
     'Chats or attachments have not been saved locally. Retry before closing this page.',
   sessionDeleteFailed: 'Unable to delete this chat. Please try again.',
   settings: 'Settings',
-  appName: 'API usage demo',
+  appName: 'DS Demo with Shortcut',
   deleteSessionModalContentTitle: 'Delete chat?',
   deleteSessionWithFilesDescription:
     'This chat and its uploaded files will be permanently deleted and cannot be recovered. Delete this chat?',
@@ -191,6 +191,12 @@ export const en = {
   aboutDisclaimer:
     'This page is a community demo built on the DeepSeek API. It is not an official DeepSeek product or service and does not represent DeepSeek.',
   aboutRepoLink: 'GitHub repository',
+  aboutTermsLink: 'DeepSeek Terms of Use',
+  settingsShortcutsTitle: 'Keyboard shortcuts',
+  shortcutSwitchChat: 'Switch to the previous / next chat',
+  shortcutModifierNote: 'On macOS you can use ⌘ instead of Ctrl.',
+  dataPrivacyNotice:
+    'Your API Key is stored only in this browser’s localStorage. This project does not collect, upload, or sync it; chat requests go straight from your browser to the API service you configured.',
   footerDisclaimer: 'Community demo. Not an official DeepSeek project.',
   footerCompactDisclaimer: 'Not official',
   footerRepoLink: 'GitHub',

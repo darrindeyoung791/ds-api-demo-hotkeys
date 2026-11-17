@@ -19,7 +19,7 @@ import {
 } from '../../services/chat/backup.js'
 import { useIsMobile } from '../../app/viewport.js'
 import { useChatStore } from '../../services/chat/store.js'
-import { REPO_URL } from '../../services/links.js'
+import { REPO_URL, termsUrl } from '../../services/links.js'
 import { regionCodes, getRegionName, provinces } from '../../services/location.js'
 import {
   isChineseBrowser,
@@ -110,6 +110,7 @@ const SettingsContent = () => {
             </>
           ) : section === 'data' ? (
             <>
+              <div className={styles.notice}>{t('dataPrivacyNotice')}</div>
               <ApiKeyField editor={apiKeyEditor} />
               <ImportHistory historyImport={historyImport} disabled={historyBusy} />
               <ExportHistory disabled={historyBusy} />
@@ -145,9 +146,18 @@ const SettingsContent = () => {
 const readVersion = () =>
   document.querySelector('meta[name="application-version"]')?.getAttribute('content') ?? ''
 
-/** 关于：非官方声明与仓库地址，版本号来自构建产物 */
+/** 关于页列出的快捷键；键名不作翻译，说明文案走 i18n */
+const SHORTCUTS: { keys: string; label: TranslationKey }[] = [
+  { keys: 'Ctrl + J', label: 'newChat' },
+  { keys: 'Ctrl + K', label: 'historySearchTitle' },
+  { keys: 'Ctrl + ,', label: 'settings' },
+  { keys: 'Ctrl + ↑ / ↓', label: 'shortcutSwitchChat' },
+]
+
+/** 关于：非官方声明、仓库地址与快捷键说明，版本号来自构建产物 */
 const AboutSection = () => {
   const t = useTranslate()
+  const locale = useSettings((state) => state.locale)
   const [version] = useState(readVersion)
   return (
     <div className={styles.about}>
@@ -156,10 +166,33 @@ const AboutSection = () => {
         <div className={styles.aboutVersion}>{t('aboutVersion', { version })}</div>
       ) : null}
       <p className={styles.aboutText}>{t('aboutDisclaimer')}</p>
-      <a className={styles.aboutLink} href={REPO_URL} target="_blank" rel="noreferrer">
-        <IconLinkOutline16 />
-        {t('aboutRepoLink')}
-      </a>
+      <div className={styles.aboutLinks}>
+        <a className={styles.aboutLink} href={REPO_URL} target="_blank" rel="noreferrer">
+          <IconLinkOutline16 />
+          {t('aboutRepoLink')}
+        </a>
+        <a
+          className={styles.aboutLink}
+          href={termsUrl(locale)}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <IconLinkOutline16 />
+          {t('aboutTermsLink')}
+        </a>
+      </div>
+      <div className={styles.aboutSection}>
+        <div className={styles.aboutSectionTitle}>{t('settingsShortcutsTitle')}</div>
+        <ul className={styles.shortcuts}>
+          {SHORTCUTS.map((shortcut) => (
+            <li key={shortcut.keys} className={styles.shortcutRow}>
+              <span className={styles.shortcutKeys}>{shortcut.keys}</span>
+              <span className={styles.shortcutLabel}>{t(shortcut.label)}</span>
+            </li>
+          ))}
+        </ul>
+        <div className={styles.shortcutNote}>{t('shortcutModifierNote')}</div>
+      </div>
     </div>
   )
 }

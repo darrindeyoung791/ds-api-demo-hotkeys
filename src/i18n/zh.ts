@@ -11,7 +11,7 @@ export const zh = {
   sessionSaveFailed: '对话或附件尚未保存到本机，关闭页面可能丢失，请重试',
   sessionDeleteFailed: '删除对话失败，请重试',
   settings: '设置',
-  appName: 'DS demo',
+  appName: 'DS Demo with Shortcut',
   deleteSessionModalContentTitle: '永久删除对话',
   deleteSessionWithFilesDescription: '删除后，该对话及其中上传的文件将不可恢复。确认删除吗？',
   cancel: '取消',
@@ -182,6 +182,12 @@ export const zh = {
   aboutDisclaimer:
     '本页面是使用 DeepSeek API 的社区演示项目，并非 DeepSeek 官方产品或服务，也不代表 DeepSeek 的立场。',
   aboutRepoLink: 'GitHub 存储库',
+  aboutTermsLink: 'DeepSeek 用户协议',
+  settingsShortcutsTitle: '快捷键',
+  shortcutSwitchChat: '切换上一个 / 下一个对话',
+  shortcutModifierNote: 'macOS 上可以用 ⌘ 代替 Ctrl。',
+  dataPrivacyNotice:
+    '你的 API Key 只保存在当前浏览器的 localStorage 中，本项目不会收集、上传或同步它；对话请求由浏览器直接发往你配置的 API 服务。',
   footerDisclaimer: '社区演示项目，并非 DeepSeek 官方项目',
   footerCompactDisclaimer: '非官方项目',
   footerRepoLink: 'GitHub',

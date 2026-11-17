@@ -12,13 +12,13 @@
 
 .top {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
   box-sizing: border-box;
-  height: 48px;
+  min-height: 48px;
   margin-bottom: 16px;
-  padding: 15px 0 10px 4px;
+  padding: 10px 0 8px 4px;
   flex-shrink: 0;
 }
 
@@ -26,11 +26,10 @@
   min-width: 0;
   padding-left: 4px;
   overflow: hidden;
-  font-size: 20px;
-  line-height: 22px;
+  font-size: 16px;
+  line-height: 20px;
   font-weight: 600;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
   color: var(--dsw-alias-brand-primary);
 }
 
