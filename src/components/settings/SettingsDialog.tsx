@@ -5,7 +5,9 @@ import {
   IconDataOutline16,
   IconDownloadOutline16,
   IconFollowsystemOutline16,
+  IconInfoOutline16,
   IconLightOutline16,
+  IconLinkOutline16,
   IconSettingsOutline16,
   IconUploadOutline14,
 } from '../base/icons.js'
@@ -17,6 +19,7 @@ import {
 } from '../../services/chat/backup.js'
 import { useIsMobile } from '../../app/viewport.js'
 import { useChatStore } from '../../services/chat/store.js'
+import { REPO_URL } from '../../services/links.js'
 import { regionCodes, getRegionName, provinces } from '../../services/location.js'
 import {
   isChineseBrowser,
@@ -52,6 +55,7 @@ const sections: { value: SettingsSection; label: TranslationKey; icon: ReactNode
     icon: <IconSettingsOutline16 />,
   },
   { value: 'data', label: 'settingDialogAsideDataOptionLabel', icon: <IconDataOutline16 /> },
+  { value: 'about', label: 'settingDialogAsideAboutOptionLabel', icon: <IconInfoOutline16 /> },
 ]
 
 const SettingsContent = () => {
@@ -101,7 +105,7 @@ const SettingsContent = () => {
               <TtsVoiceSetting />
               <LocationSetting />
             </>
-          ) : (
+          ) : section === 'data' ? (
             <>
               <ApiKeyField editor={apiKeyEditor} />
               <ImportHistory historyImport={historyImport} disabled={historyBusy} />
@@ -123,12 +127,37 @@ const SettingsContent = () => {
               />
               {isMobile ? <ApiKeyConfirm editor={apiKeyEditor} /> : null}
             </>
+          ) : (
+            <AboutSection />
           )}
         </div>
       </Modal>
       {historyImport.file ? <ImportConfirm historyImport={historyImport} /> : null}
       {historyDelete.opened ? <DeleteAllConfirm historyDelete={historyDelete} /> : null}
     </>
+  )
+}
+
+/** 构建时由 HtmlRspackPlugin 写入的版本号；没有 meta 时返回空串 */
+const readVersion = () =>
+  document.querySelector('meta[name="application-version"]')?.getAttribute('content') ?? ''
+
+/** 关于：非官方声明与仓库地址，版本号来自构建产物 */
+const AboutSection = () => {
+  const t = useTranslate()
+  const [version] = useState(readVersion)
+  return (
+    <div className={styles.about}>
+      <div className={styles.aboutName}>{t('appName')}</div>
+      {version ? (
+        <div className={styles.aboutVersion}>{t('aboutVersion', { version })}</div>
+      ) : null}
+      <p className={styles.aboutText}>{t('aboutDisclaimer')}</p>
+      <a className={styles.aboutLink} href={REPO_URL} target="_blank" rel="noreferrer">
+        <IconLinkOutline16 />
+        {t('aboutRepoLink')}
+      </a>
+    </div>
   )
 }
 

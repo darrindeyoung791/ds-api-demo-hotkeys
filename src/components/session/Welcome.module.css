@@ -28,6 +28,14 @@
   color: var(--dsw-alias-label-primary);
 }
 
+.footer {
+  position: absolute;
+  right: 0;
+  bottom: 14px;
+  left: 0;
+  padding: 0 16px;
+}
+
 @media (max-width: 439px) {
   .greeting {
     font-size: 20px;
@@ -64,5 +72,11 @@
     text-align: center;
     color: var(--dsw-alias-label-tertiary);
     user-select: none;
+  }
+
+  .footer {
+    position: static;
+    flex-shrink: 0;
+    padding: 0 16px calc(6px + env(safe-area-inset-bottom));
   }
 }

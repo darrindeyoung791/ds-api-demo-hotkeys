@@ -4,10 +4,11 @@ import { useTranslate } from '../../i18n/index.js'
 import type { Session } from '../../services/chat/types.js'
 import { ChatInput } from '../chatInput/ChatInput.js'
 import { MessageList } from '../messages/MessageList.js'
+import { Footer } from './Footer.js'
 import { MobileHeader } from './MobileHeader.js'
 import styles from './SessionView.module.css'
 
-/** 会话页：标题栏（移动端为顶栏）+ 消息列表，输入框吸底 */
+/** 会话页：标题栏（移动端为顶栏）+ 消息列表，输入框吸底；输入框下方说明内容由 AI 生成、项目非官方 */
 export const SessionView = ({
   session,
   streaming,
@@ -38,6 +39,7 @@ export const SessionView = ({
           <div className={styles.inputContainer}>
             <ChatInput sessionId={session.id} />
             <div className={styles.caveat}>{t('contentCaveat')}</div>
+            <Footer compact className={styles.footer} />
           </div>
         }
       />

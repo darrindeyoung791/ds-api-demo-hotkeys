@@ -59,6 +59,10 @@
   user-select: none;
 }
 
+.footer {
+  padding: 0 0 6px;
+}
+
 @media not all and (min-width: 768px) {
   .inputContainer {
     position: relative;

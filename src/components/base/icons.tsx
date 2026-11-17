@@ -510,6 +510,43 @@ export const IconPhotoErrorFill20 = () => (
   </svg>
 )
 
+/** 关于：圆环 + 字母 i，与错误提示图标同一套轮廓 */
+export const IconInfoOutline16 = () => (
+  <svg width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M8 .333a7.667 7.667 0 1 1 0 15.334A7.667 7.667 0 0 1 8 .333zm0 1.334a6.333 6.333 0 1 0 0 12.666A6.333 6.333 0 0 0 8 1.667z"
+      fill="currentColor"
+    />
+    <path d="M7.35 7.05h1.3v5.1h-1.3z" fill="currentColor" />
+    <circle cx="8" cy="4.85" r=".95" fill="currentColor" />
+  </svg>
+)
+
+/** 助手消息：对话气泡轮廓，供历史搜索区分提问与回答 */
+export const IconChatOutline16 = () => (
+  <svg width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M2.3 7.4C2.3 4.32 4.85 1.8 8 1.8s5.7 2.52 5.7 5.6-2.55 5.6-5.7 5.6c-.75 0-1.47-.13-2.12-.37l-2.58.92.72-2.35C2.98 10.2 2.3 8.87 2.3 7.4Z"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinejoin="round"
+    />
+  </svg>
+)
+
+/** 用户消息：头像轮廓 */
+export const IconUserOutline16 = () => (
+  <svg width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="8" cy="5.3" r="2.6" stroke="currentColor" strokeWidth="1.3" />
+    <path
+      d="M3.2 13.6c0-2.65 2.15-4.4 4.8-4.4s4.8 1.75 4.8 4.4"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinecap="round"
+    />
+  </svg>
+)
+
 /** 错误提示图标：圆环 + 感叹号，颜色跟随 currentColor */
 export const IconToastError16 = () => (
   <svg width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
