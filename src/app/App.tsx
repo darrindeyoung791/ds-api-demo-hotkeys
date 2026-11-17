@@ -55,9 +55,11 @@ export const App = () => {
   usePreventPageScroll(isMobile)
   useShortcuts()
 
+  // 页面语言与标题跟随界面语言；标题的应用名与构建时写入的一致，来自 i18n
   useEffect(() => {
     document.documentElement.lang = locale
-  }, [locale])
+    document.title = t('appName')
+  }, [locale, t])
 
   // 文件数、存储空间达到上限时，附件上只显示「上传失败」，原因用 toast 说明
   useEffect(() => onUploadNotice(showToast), [])

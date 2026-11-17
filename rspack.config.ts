@@ -3,6 +3,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from '@rspack/cli'
 import { rspack, type Configuration } from '@rspack/core'
+import { zh } from './src/i18n/zh.js'
 
 const dev = process.env.NODE_ENV !== 'production'
 const targets = ['chrome >= 105', 'edge >= 105', 'safari >= 16', 'firefox >= 110']
@@ -74,11 +75,12 @@ export const createConfig = ({
     ],
   },
   plugins: [
-    // 经典 defer 脚本支持 file:// 页面的资源加载
+    // 经典 defer 脚本支持 file:// 页面的资源加载；标题取 i18n 里的应用名，避免两处维护
     new rspack.HtmlRspackPlugin({
       template: './src/index.html',
       scriptLoading: 'defer',
       meta: { 'application-version': version },
+      templateParameters: { appName: zh.appName },
     }),
     new rspack.DefinePlugin({ __API_ORIGIN__: JSON.stringify(apiOrigin) }),
     new rspack.CopyRspackPlugin({

@@ -36,7 +36,7 @@
 ```text
 src/
   main.tsx             入口：ensureKatex()、setupTheme() 之后渲染 <App />
-  index.html           HTML 模板（HtmlRspackPlugin 注入脚本与 application-version）
+  index.html           HTML 模板（HtmlRspackPlugin 注入脚本、标题与 application-version）
   env.d.ts             全局声明：CSS Modules、__API_ORIGIN__、Prism/KaTeX 副作用模块
   app/                 布局（App.tsx）、全局快捷键（shortcuts.ts）、主题（theme.ts / theme.css）、全局样式、视口与移动端 hook
   components/
@@ -122,6 +122,7 @@ src/
 - 格式由 oxfmt 决定：**无分号、单引号、2 空格、行宽 100、`trailingComma: es5`**。改完代码跑 `pnpm format`，不要手工调整排版。
 - 注释与文档使用**中文**，解释「为什么」而不是复述代码；公开导出的函数与类型用 `/** … */` 说明契约。
 - 面向用户的文案一律进 [zh.ts](src/i18n/zh.ts) 并在 [en.ts](src/i18n/en.ts) 提供对应键（`TranslationKey = keyof typeof zh`，缺键会编译失败）；带参数用 `{count}` 占位。
+- 应用名只有一处来源：`zh.ts` / `en.ts` 的 `appName`。[index.html](src/index.html) 的标题由 `rspack.config.ts` 通过 `templateParameters` 注入 `zh.appName`，运行时 [App.tsx](src/app/App.tsx) 再按当前语言同步 `document.title` 与 `<html lang>`；不要在 HTML 或组件里另写产品名。
 
 ## 常见改动指南
 
