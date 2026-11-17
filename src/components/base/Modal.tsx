@@ -9,6 +9,9 @@ import styles from './Modal.module.css'
 /** 当前打开的弹窗，后打开的在末尾；叠放时 Esc 只关闭最上层 */
 const openModals: object[] = []
 
+/** 是否有弹窗打开：全局快捷键据此让行，避免在弹窗之上再开新界面 */
+export const isModalOpen = () => openModals.length > 0
+
 /** 遮罩 + 居中卡片，Esc / 点遮罩关闭 */
 export const Modal = ({
   title,

@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useTranslate } from '../i18n/index.js'
 import { useSettings } from '../services/settings.js'
 import { useIsMobile, useMobileViewport, usePreventPageScroll } from './viewport.js'
+import { useShortcuts } from './shortcuts.js'
 import {
   bindChatPersistence,
   initChat,
@@ -11,6 +12,7 @@ import {
 } from '../services/chat/store.js'
 import { SearchPanel } from '../components/search/SearchPanel.js'
 import { closeSearchPanel } from '../components/search/searchPanelState.js'
+import { HistorySearch } from '../components/historySearch/HistorySearch.js'
 import { SessionView } from '../components/session/SessionView.js'
 import { MobileHeader } from '../components/session/MobileHeader.js'
 import { Welcome } from '../components/session/Welcome.js'
@@ -51,6 +53,7 @@ export const App = () => {
   const activeId = useChatStore((state) => state.activeId)
 
   usePreventPageScroll(isMobile)
+  useShortcuts()
 
   useEffect(() => {
     document.documentElement.lang = locale
@@ -131,6 +134,7 @@ export const App = () => {
           </div>
         </main>
         <SearchPanel />
+        <HistorySearch />
       </div>
       <SettingsDialog />
       <Toast />
