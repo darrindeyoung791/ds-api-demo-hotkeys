@@ -18,6 +18,7 @@ import { showToast } from '../base/toastState.js'
 import { openHistorySearch } from '../historySearch/historySearchState.js'
 import { openSettings } from '../settings/settingsDialogState.js'
 import { closeMobileSider, useMobileSider } from './mobileSiderState.js'
+import { useSessionNavigation } from './sessionNavigationState.js'
 import { SessionItem } from './SessionItem.js'
 import styles from './Sider.module.css'
 
@@ -26,6 +27,9 @@ export const Sider = ({ mobile = false }: { mobile?: boolean }) => {
   const t = useTranslate()
   const sessions = useChatStore((state) => state.sessions)
   const activeId = useChatStore((state) => state.activeId)
+  const pendingId = useSessionNavigation((state) => state.pendingId)
+  // 快捷键按住时只高亮待定会话，消息仍停留在原会话，松手后才切换
+  const highlightId = pendingId ?? activeId
   const [now, setNow] = useState(Date.now)
   const groups = useMemo(() => groupSessions(sessions, now, t), [sessions, now, t])
   const [deleting, setDeleting] = useState<SessionSummary | null>(null)
@@ -166,7 +170,7 @@ export const Sider = ({ mobile = false }: { mobile?: boolean }) => {
                 <SessionItem
                   key={session.id}
                   session={session}
-                  active={session.id === activeId}
+                  active={session.id === highlightId}
                   selectionMode={selectionMode}
                   selected={selected.has(session.id)}
                   onToggleSelect={() => toggleSelected(session.id)}
