@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { memo, useState } from 'react'
+import { memo, useEffect, useRef, useState } from 'react'
 import { useTranslate } from '../../i18n/index.js'
 import {
   IconCheckOutline16,
@@ -34,7 +34,15 @@ export const SessionItem = memo(function SessionItem({
 }) {
   const t = useTranslate()
   const [editing, setEditing] = useState(false)
+  const itemRef = useRef<HTMLDivElement>(null)
   const displayTitle = session.title || t('untitledChat')
+
+  // 切换会话（包括 Ctrl+↑/↓）后，让当前会话留在侧边栏的可视范围内
+  useEffect(() => {
+    if (active) {
+      itemRef.current?.scrollIntoView({ block: 'nearest' })
+    }
+  }, [active])
 
   if (editing) {
     const finish = (title: string) => {
@@ -63,6 +71,7 @@ export const SessionItem = memo(function SessionItem({
 
   return (
     <div
+      ref={itemRef}
       className={clsx(
         styles.item,
         active && styles.active,

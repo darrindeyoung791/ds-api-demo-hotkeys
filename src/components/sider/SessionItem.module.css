@@ -10,6 +10,8 @@
   line-height: 22px;
   color: var(--dsw-alias-label-primary);
   cursor: pointer;
+  /* 滚动到当前会话时避开吸顶的分组标题 */
+  scroll-margin-block-start: 26px;
 
   &.active {
     background-color: var(--dsw-specific-sidebar-nav-item-active-accent);
