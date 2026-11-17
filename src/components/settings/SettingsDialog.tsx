@@ -38,7 +38,12 @@ import { Modal } from '../base/Modal.js'
 import { Select } from '../base/Select.js'
 import { showToast } from '../base/toastState.js'
 import { ApiKeyConfirm, ApiKeyField, useApiKeyEditor } from './ApiKeyField.js'
-import { closeSettings, useSettingsDialog, type SettingsSection } from './settingsDialogState.js'
+import {
+  closeSettings,
+  setSettingsSection,
+  useSettingsDialog,
+  type SettingsSection,
+} from './settingsDialogState.js'
 import styles from './Settings.module.css'
 
 /**
@@ -63,8 +68,15 @@ const sections: { value: SettingsSection; label: TranslationKey; icon: ReactNode
 const SettingsContent = () => {
   const t = useTranslate()
   const isMobile = useIsMobile()
-  // 打开时按调用方指定的分组选中，之后在弹窗内切换
-  const [section, setSection] = useState(() => useSettingsDialog.getState().section)
+  // 分组存在 store 里：打开时由调用方指定，之后标签页与 Ctrl+↑/↓ 都能切换
+  const section = useSettingsDialog((state) => state.section)
+  const moveSection = (delta: -1 | 1) => {
+    const index = sections.findIndex((item) => item.value === section)
+    const next = sections[index + delta]
+    if (next) {
+      setSettingsSection(next.value)
+    }
+  }
   // 切换分组不丢失正在输入的 API Key 与导入状态
   const apiKeyEditor = useApiKeyEditor()
   const historyImport = useHistoryImport()
@@ -83,6 +95,20 @@ const SettingsContent = () => {
             closeSettings()
           }
         }}
+        onShortcut={(event) => {
+          // 与全局快捷键一致：Ctrl / ⌘ + ↑ / ↓ 在分组之间切换
+          if (event.altKey || event.shiftKey) {
+            return
+          }
+          if (!event.ctrlKey && !event.metaKey) {
+            return
+          }
+          if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') {
+            return
+          }
+          event.preventDefault()
+          moveSection(event.key === 'ArrowUp' ? -1 : 1)
+        }}
       >
         <div role="tablist" className={styles.navigation}>
           {sections.map((item) => (
@@ -92,7 +118,7 @@ const SettingsContent = () => {
               role="tab"
               aria-selected={section === item.value}
               className={clsx(styles.navItem, section === item.value && styles.navItemActive)}
-              onClick={() => setSection(item.value)}
+              onClick={() => setSettingsSection(item.value)}
             >
               {item.icon}
               {t(item.label)}

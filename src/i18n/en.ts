@@ -193,7 +193,7 @@ export const en = {
   aboutRepoLink: 'GitHub repository',
   aboutTermsLink: 'DeepSeek Terms of Use',
   settingsShortcutsTitle: 'Keyboard shortcuts',
-  shortcutSwitchChat: 'Switch to the previous / next chat',
+  shortcutSwitchChat: 'Switch chats; switch settings tabs while Settings is open',
   shortcutModifierNote: 'On macOS you can use ⌘ instead of Ctrl.',
   dataPrivacyNotice:
     'Your API Key is stored only in this browser’s localStorage. This project does not collect, upload, or sync it; chat requests go straight from your browser to the API service you configured.',

@@ -184,7 +184,7 @@ export const zh = {
   aboutRepoLink: 'GitHub 存储库',
   aboutTermsLink: 'DeepSeek 用户协议',
   settingsShortcutsTitle: '快捷键',
-  shortcutSwitchChat: '切换上一个 / 下一个对话',
+  shortcutSwitchChat: '切换对话；设置打开时切换设置标签页',
   shortcutModifierNote: 'macOS 上可以用 ⌘ 代替 Ctrl。',
   dataPrivacyNotice:
     '你的 API Key 只保存在当前浏览器的 localStorage 中，本项目不会收集、上传或同步它；对话请求由浏览器直接发往你配置的 API 服务。',

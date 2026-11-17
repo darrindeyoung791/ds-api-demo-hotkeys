@@ -21,6 +21,7 @@ export const Modal = ({
   className,
   mainClassName,
   onClose,
+  onShortcut,
 }: {
   title: ReactNode
   children?: ReactNode
@@ -31,18 +32,30 @@ export const Modal = ({
   /** 内容区的 class */
   mainClassName?: string
   onClose: () => void
+  /**
+   * 仅在作为最上层弹窗时收到的按键（Esc 除外）：供弹窗内部实现快捷键，
+   * 叠了确认弹窗时不会触发。
+   */
+  onShortcut?: (event: KeyboardEvent) => void
 }) => {
   const t = useTranslate()
   const titleId = useId()
   const onCloseRef = useRef(onClose)
   onCloseRef.current = onClose
+  const onShortcutRef = useRef(onShortcut)
+  onShortcutRef.current = onShortcut
   useEffect(() => {
     const token = {}
     openModals.push(token)
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && openModals.at(-1) === token) {
-        onCloseRef.current()
+      if (openModals.at(-1) !== token) {
+        return
       }
+      if (event.key === 'Escape') {
+        onCloseRef.current()
+        return
+      }
+      onShortcutRef.current?.(event)
     }
     document.addEventListener('keydown', onKeyDown)
     return () => {
