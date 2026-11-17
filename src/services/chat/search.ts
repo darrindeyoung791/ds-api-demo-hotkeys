@@ -17,6 +17,8 @@ export type HistoryMessageEntry = {
   title: string
   role: 'user' | 'assistant'
   text: string
+  /** 预先转成小写的副本：每次按键都要匹配全部消息，避免重复分配字符串 */
+  search: string
   createdAt: number
 }
 
@@ -106,6 +108,7 @@ export const collectHistoryIndex = async (): Promise<HistoryIndex> => {
         title: summary.title,
         role: message.role,
         text,
+        search: text.toLowerCase(),
         createdAt: message.createdAt,
       })
     }
@@ -137,7 +140,7 @@ export const searchHistory = (index: HistoryIndex, rawQuery: string): HistorySea
   const needle = query.toLowerCase()
   const hits: HistorySearchHit[] = []
   for (const entry of index.messages) {
-    const at = entry.text.toLowerCase().indexOf(needle)
+    const at = entry.search.indexOf(needle)
     if (at < 0) {
       continue
     }

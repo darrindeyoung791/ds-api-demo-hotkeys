@@ -59,20 +59,19 @@ const Highlight = ({ text, query }: { text: string; query: string }) => {
   )
 }
 
-/** 输入停顿后再搜索，与官方默认的 200ms 一致，避免每个按键都重排一次结果 */
-const SEARCH_DEBOUNCE_MS = 200
-
+/**
+ * 输入框与搜索关键词分开：输入框始终显示正在输入的内容，关键词只在非组词状态更新，
+ * 这样英文逐字输入、删除都会立即重新匹配，输入法组词结束前不会用拼音去匹配正文。
+ */
 const HistorySearchPanel = () => {
   const t = useTranslate()
   const locale = useSettings((state) => state.locale)
   const [index, setIndex] = useState<HistoryIndex | null>(null)
-  /** 输入框里的实时内容；query 是防抖后真正用于搜索的关键词 */
   const [value, setValue] = useState('')
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const composingRef = useRef(false)
 
   // 每次打开读取一次全部会话；关闭后丢弃，下次打开能包含期间新增的对话
@@ -96,13 +95,7 @@ const HistorySearchPanel = () => {
 
   useEffect(() => {
     inputRef.current?.focus()
-    return () => clearTimeout(timerRef.current)
   }, [])
-
-  const scheduleQuery = (text: string) => {
-    clearTimeout(timerRef.current)
-    timerRef.current = setTimeout(() => setQuery(text), SEARCH_DEBOUNCE_MS)
-  }
 
   const hits = useMemo(() => (index ? searchHistory(index, query) : []), [index, query])
 
@@ -158,14 +151,7 @@ const HistorySearchPanel = () => {
       return
     }
     if (event.key === 'Enter') {
-      // 防抖未到就回车时，用输入框里的最新内容重新匹配，避免选中上一次关键词的结果
-      const keyword = value
-      const results = index ? searchHistory(index, keyword) : hits
-      if (keyword !== query) {
-        clearTimeout(timerRef.current)
-        setQuery(keyword)
-      }
-      const hit = results[active] ?? results[0]
+      const hit = hits[active] ?? hits[0]
       if (hit) {
         event.preventDefault()
         openHit(hit)
@@ -200,9 +186,14 @@ const HistorySearchPanel = () => {
             onChange={(event) => {
               const text = event.target.value
               setValue(text)
-              // 输入法组词期间先不搜索，等 compositionend 提交，避免用拼音匹配正文
-              if (!composingRef.current) {
-                scheduleQuery(text)
+              // 优先用事件自带的 isComposing：即使浏览器漏发 compositionend，
+              // 之后的普通输入也会立即恢复搜索，不会一直卡在「组词中」
+              const native = event.nativeEvent as InputEvent
+              const composing =
+                typeof native.isComposing === 'boolean' ? native.isComposing : composingRef.current
+              composingRef.current = composing
+              if (!composing) {
+                setQuery(text)
               }
             }}
             onCompositionStart={() => {
@@ -212,7 +203,11 @@ const HistorySearchPanel = () => {
               composingRef.current = false
               const text = event.currentTarget.value
               setValue(text)
-              scheduleQuery(text)
+              setQuery(text)
+            }}
+            onBlur={() => {
+              // 组词中失焦时可能收不到 compositionend，避免状态停在组词中
+              composingRef.current = false
             }}
           />
           <IconButton
