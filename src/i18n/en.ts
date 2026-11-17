@@ -186,6 +186,7 @@ export const en = {
   historySearchPlaceholder: 'Search chat content...',
   historySearchLoading: 'Loading chat history...',
   historySearchEmpty: 'No relevant results',
+  historySearchHint: 'Type a keyword to search chat content',
   historySearchNoSessions: 'No chat history yet',
   aboutVersion: 'Version {version}',
   aboutDisclaimer:

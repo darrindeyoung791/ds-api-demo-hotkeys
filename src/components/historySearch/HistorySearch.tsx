@@ -85,7 +85,7 @@ const HistorySearchPanel = () => {
       })
       .catch(() => {
         if (!cancelled) {
-          setIndex({ messages: [], sessions: [] })
+          setIndex({ messages: [] })
         }
       })
     return () => {
@@ -224,10 +224,14 @@ const HistorySearchPanel = () => {
         >
           {index === null ? (
             <div className={styles.empty}>{t('historySearchLoading')}</div>
-          ) : hits.length === 0 ? (
+          ) : query.trim() === '' ? (
             <div className={styles.empty}>
-              {query.trim() ? t('historySearchEmpty') : t('historySearchNoSessions')}
+              {index.messages.length === 0
+                ? t('historySearchNoSessions')
+                : t('historySearchHint')}
             </div>
+          ) : hits.length === 0 ? (
+            <div className={styles.empty}>{t('historySearchEmpty')}</div>
           ) : (
             hits.map((hit, position) => (
               <button
