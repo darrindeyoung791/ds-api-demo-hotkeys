@@ -1,14 +1,16 @@
-# DS API Demo with Hot Keys
+# DS API Demo with Hotkeys
 
 English | [简体中文](README.zh-CN.md)
 
-This project is modified from DeepSeek's [original Chat Demo](https://github.com/deepseek-ai/chat-demo) with some feature additions. It supports the keyboard shortcuts and chat history search like the official web client.
+This project is modified from DeepSeek's [original chat demo](https://github.com/deepseek-ai/chat-demo) with some feature additions. It supports the keyboard shortcuts and chat history search like the official web client.
 
 This project is a static chat demo powered by the DeepSeek API. No application backend is required: the browser connects directly to the configured API service. Enter your API key in Settings before your first chat.
 
 >[!CAUTION]
 >
-> This project is **NOT** an official DeepSeek product or service, and does not represent DeepSeek's positions. Do not rely on this project's GitHub Pages; the page may be shut down or moved without notice.
+> This project is **NOT** an official DeepSeek product or service, and does not represent DeepSeek. 
+>
+> Please do **NOT** rely on this project's demo GitHub Pages; the page may be shut down or moved without notice.
 
 ## Features
 
@@ -24,7 +26,7 @@ This project is a static chat demo powered by the DeepSeek API. No application b
   - `Ctrl` + `↑` / `↓` switches chats (switches between settings tabs while Settings is open)
 - Supports multi-selecting chats for bulk actions (not the official implementation; behavior may differ)
 - Mobile portrait gestures: swipe right to open the sidebar, swipe left (inside the sidebar or on the area outside it) to close
-- Choose the model in Settings → General: `deepseek-flash`, `deepseek-v4-pro`, or enter a custom model name (might be useful when new models are released while this project doesn't catch up)
+- Choose the model in Settings → General: `deepseek-flash`, `deepseek-v4-pro`, or enter a custom DeepSeek model name (useful in case new models are released before this project catches up)
 
 ## Getting started
 

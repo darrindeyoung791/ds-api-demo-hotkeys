@@ -1,14 +1,16 @@
-# DS API Demo with Hot Keys
+# DS API Demo with Hotkeys
 
 [English](README.md) | 简体中文
 
-本项目修改自 DeepSeek [原版 Chat Demo](https://github.com/deepseek-ai/chat-demo)，在功能上进行一定补全。支持原官方网页端的快捷键和历史对话搜索功能。
+本项目修改自 DeepSeek [原版 chat demo](https://github.com/deepseek-ai/chat-demo)，在功能上进行一定补全。支持原官方网页端的快捷键和历史对话搜索功能。
 
 本项目是基于 DeepSeek API 的静态聊天示例，无需应用后端，浏览器直接请求配置的 API 服务。使用前，请在设置中填写 API Key。
 
 >[!CAUTION]
 >
-> 本项目并非 DeepSeek 官方产品或服务，也不代表 DeepSeek 的立场。请不要依赖本项目的 GitHub Pages，页面可能不经通知随时关闭或更改地址。
+> 本项目并非 DeepSeek 官方产品或服务，也不代表 DeepSeek。
+>
+> 请不要依赖本项目的 GitHub Pages，页面仅供展示，可能不经通知随时关闭或更改地址。
 
 ## 特点功能
 
