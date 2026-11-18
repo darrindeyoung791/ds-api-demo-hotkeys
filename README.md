@@ -2,9 +2,9 @@
 
 English | [简体中文](README.zh-CN.md)
 
-This project is modified from DeepSeek's [original Chat Demo](https://github.com/deepseek-ai/chat-demo) with some feature additions. It supports the keyboard shortcuts and chat history search of the official web client.
+This project is modified from DeepSeek's [original Chat Demo](https://github.com/deepseek-ai/chat-demo) with some feature additions. It supports the keyboard shortcuts and chat history search like the official web client.
 
-A static chat demo powered by the DeepSeek API. No application backend is required: the browser connects directly to the configured API service. Enter your API key in Settings before your first chat.
+This project is a static chat demo powered by the DeepSeek API. No application backend is required: the browser connects directly to the configured API service. Enter your API key in Settings before your first chat.
 
 >[!CAUTION]
 >
@@ -18,11 +18,11 @@ A static chat demo powered by the DeepSeek API. No application backend is requir
 
 - Supports the shortcuts from the [official web client](https://chat.deepseek.com/):
   - `Ctrl`+`J` starts a new chat
-  - `Ctrl`+`K` searches chat history (not the official implementation; behavior differs)
+  - `Ctrl`+`K` searches chat history (not the official implementation; behavior may differ)
 - Supports some shortcuts the official client does not have:
   - `Ctrl`+`,` opens Settings
   - `Ctrl` + `↑` / `↓` switches chats (switches between settings tabs while Settings is open)
-- Supports multi-selecting chats for bulk actions (not the official implementation; behavior differs)
+- Supports multi-selecting chats for bulk actions (not the official implementation; behavior may differ)
 - Mobile portrait gestures: swipe right to open the sidebar, swipe left (inside the sidebar or on the area outside it) to close
 - Choose the model in Settings → General: `deepseek-flash`, `deepseek-v4-pro`, or enter a custom model name (might be useful when new models are released while this project doesn't catch up)
 
@@ -47,11 +47,30 @@ pnpm build
 
 The output is written to `dist/`. Deploy it to a static web server or open `dist/index.html` directly. Opening the file directly requires the browser and the API service to allow storage and cross-origin requests for `file://` pages.
 
+## Deploying your own GitHub Pages
+
+This project ships [.github/workflows/pages.yml](.github/workflows/pages.yml), which builds the site and publishes it to GitHub Pages with GitHub Actions. No server and no secrets are needed: the API key only lives in each visitor's browser and never enters the build output.
+
+1. Fork this repository, or create a new repository on GitHub and push this project's code (the default branch must be `main`).
+2. Open the repository's **Settings → Pages** and set **Source** to **GitHub Actions** (not "Deploy from a branch").
+3. If Actions is disabled for the repository, allow it first in **Settings → Actions → General**.
+4. Pushing to `main` triggers a deployment automatically, or run it manually from **Actions → Deploy GitHub Pages → Run workflow**.
+
+The workflow runs `pnpm install --frozen-lockfile` → `pnpm type` → `pnpm lint` → `pnpm build`, then uploads `dist/` and publishes it through `actions/deploy-pages`, so a type-check or lint failure blocks the deploy. Once deployed, the site is available at `https://<user>.github.io/<repo>/`; the deployment environment is named `github-pages`, and the URL also shows up under **Settings → Pages** and in the workflow run.
+
+The build uses relative asset paths (`publicPath: 'auto'`), so it works under a repository subpath or on a custom domain without touching the build config. Note: changing the domain or repository name changes the site origin, so existing localStorage settings and IndexedDB conversations do not carry over — enter the API key again on the new site.
+
+If you prefer not to use Actions, run `pnpm build` locally and upload the contents of `dist/` to any static host (Pages, object storage, Nginx, and so on); the result is the same. When deploying under a subpath, do not hand-edit the assets into absolute paths.
+
+The API origin is injected at build time (default `https://api.deepseek.com`). To use another API service, change `apiOrigin` in `createConfig()` in [rspack.config.ts](rspack.config.ts) before building; the service must support the Messages / Files APIs and the speech endpoints (see Development below).
+
 ## Data
 
 >[!CAUTION]
 >
 > This project is not malicious. However you should never blindly trust any unfamiliar project that claims to be safe, especially one that asks you for an API key. Always review the source code to keep yourself safe.
+>
+> If you trust this project's source code, you can also [deploy your own GitHub Pages](#deploying-your-own-github-pages) to make sure the build comes straight from the source.
 
 Your API key and settings are stored in the browser's localStorage. Conversations and original attachments are stored in IndexedDB. Local data is isolated by browser profile and site origin. Sending messages, uploading attachments, and using speech features sends the relevant content to the configured API service.
 

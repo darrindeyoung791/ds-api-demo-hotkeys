@@ -4,7 +4,7 @@
 
 本项目修改自 DeepSeek [原版 Chat Demo](https://github.com/deepseek-ai/chat-demo)，在功能上进行一定补全。支持原官方网页端的快捷键和历史对话搜索功能。
 
-基于 DeepSeek API 的静态聊天示例，无需应用后端，浏览器直接请求配置的 API 服务。使用前，请在设置中填写 API Key。
+本项目是基于 DeepSeek API 的静态聊天示例，无需应用后端，浏览器直接请求配置的 API 服务。使用前，请在设置中填写 API Key。
 
 >[!CAUTION]
 >
@@ -47,11 +47,30 @@ pnpm build
 
 产物位于 `dist/`，可部署到静态服务器，也可直接打开 `dist/index.html`。直接打开时，浏览器和 API 服务需允许 `file://` 页面的存储与跨域请求。
 
+## 自行部署 GitHub Pages
+
+本项目自带 [.github/workflows/pages.yml](.github/workflows/pages.yml)，用 GitHub Actions 构建并发布到 GitHub Pages，无需自备服务器，也不需要配置任何密钥：API Key 只保存在访问者浏览器里，不进构建产物。
+
+1. Fork 本仓库，或在 GitHub 上新建仓库后推送本项目的代码（默认分支需为 `main`）。
+2. 打开仓库的 **Settings → Pages**，把 **Source** 设为 **GitHub Actions**（不要选「Deploy from a branch」）。
+3. 如果仓库的 Actions 被停用，先在 **Settings → Actions → General** 中允许 Actions 运行。
+4. 推送到 `main` 即自动触发部署，也可以在 **Actions → Deploy GitHub Pages → Run workflow** 手动触发。
+
+工作流依次执行 `pnpm install --frozen-lockfile` → `pnpm type` → `pnpm lint` → `pnpm build`，然后上传 `dist/` 并通过 `actions/deploy-pages` 发布，因此类型检查或 lint 不通过就不会部署。部署成功后访问 `https://<用户名>.github.io/<仓库名>/`；发布环境名为 `github-pages`，页面地址也会显示在 **Settings → Pages** 和对应的工作流运行记录里。
+
+构建产物的资源使用相对路径（`publicPath: 'auto'`），可以部署在仓库子路径下，也可以部署到自定义域名，无需修改构建配置。注意：更换域名或仓库名会改变站点源（origin），浏览器中已有的 localStorage 设置和 IndexedDB 会话不会随之迁移，需要在新的站点上重新填写 API Key。
+
+若不想用 Actions，也可以本地执行 `pnpm build`，把 `dist/` 的内容上传到任意静态托管服务（Pages、对象存储、Nginx 等），效果相同。子路径部署时不要手工把资源改成绝对路径。
+
+API 地址在构建期注入（默认 `https://api.deepseek.com`）。需要换用其他 API 服务时，修改 [rspack.config.ts](rspack.config.ts) 中 `createConfig()` 的 `apiOrigin` 后再构建，接入的服务需支持 Messages / Files 与语音接口（见下文开发说明）。
+
 ## 数据
 
 >[!CAUTION]
 >
 > 虽然本项目没有恶意，但您也不应当轻信任何自称安全的陌生项目，尤其是需要您提供 API Key 的项目。请始终审计源码（包括本项目）确保您的安全。
+>
+> 如果您信任本项目的源码，您还可以[自行部署 GitHub Pages](#自行部署-github-pages)，确保产物直接来自源码。
 
 API Key 和设置保存在浏览器 localStorage，会话及附件原件保存在 IndexedDB，本地数据按浏览器用户配置和站点源（origin）隔离。发送对话、上传附件和使用语音功能时，相应内容会提交给配置的 API 服务。
 
