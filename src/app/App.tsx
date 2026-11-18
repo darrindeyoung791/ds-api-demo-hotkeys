@@ -26,6 +26,7 @@ import { stopReadAloud } from '../services/speech/readAloud.js'
 import { CollapsedSider } from '../components/sider/CollapsedSider.js'
 import { closeMobileSider } from '../components/sider/mobileSiderState.js'
 import { MobileSider, Sider } from '../components/sider/Sider.js'
+import { useSiderSwipe } from '../components/sider/useSiderSwipe.js'
 import styles from './App.module.css'
 
 export const App = () => {
@@ -54,6 +55,8 @@ export const App = () => {
 
   usePreventPageScroll(isMobile)
   useShortcuts()
+  // 移动端竖屏：左边缘右滑打开侧边栏，抽屉内左滑收起
+  useSiderSwipe(isMobile)
 
   // 页面语言与标题跟随界面语言；标题的应用名与构建时写入的一致，来自 i18n
   useEffect(() => {
