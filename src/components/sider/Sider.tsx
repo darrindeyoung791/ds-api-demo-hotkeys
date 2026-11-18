@@ -269,8 +269,7 @@ export const MobileSider = () => {
   return (
     <>
       <div className={styles.drawerMask} onClick={closeMobileSider} />
-      {/* data-mobile-sider 供左滑收起的手势判定识别抽屉面板，避免误用样式类名 */}
-      <div className={styles.drawer} data-mobile-sider>
+      <div className={styles.drawer}>
         <Sider mobile />
       </div>
     </>

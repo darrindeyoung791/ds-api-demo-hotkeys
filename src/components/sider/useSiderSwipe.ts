@@ -80,7 +80,7 @@ type Gesture = {
 }
 
 /**
- * 移动端竖屏的侧边栏滑动手势：左边缘右滑打开抽屉，抽屉内左滑收起。
+ * 移动端竖屏的侧边栏滑动手势：向右滑展开，向左滑收起（侧栏内和外侧遮罩都可以起手）。
  * 手势只在抬手时按位移阈值判定，监听全部 passive，不调用 preventDefault，
  * 以免干扰原生滚动、回弹与双指缩放；斜向滚动、文字选择、可横滑容器和浮层都会让手势作废。
  */
@@ -105,15 +105,9 @@ export const useSiderSwipe = (enabled: boolean) => {
         return
       }
       const mode = useMobileSider.getState().open ? 'close' : 'open'
-      // 展开手势只在主内容区监听：不放宽到抽屉（抽屉收起时本就不存在），也不要求从左边缘起手，
-      // 因为手机系统的左边缘返回手势会先截走触摸序列，导致页面永远收不到这次滑动。
-      // 收起只认抽屉面板内的起手，遮罩上的滑动留给「点空白关闭」的既有行为。
-      if (
-        mode === 'close' &&
-        !(target instanceof Element && target.closest('[data-mobile-sider]'))
-      ) {
-        return
-      }
+      // 两种方向都不限定起手区域：展开只可能来自主内容区（收起时抽屉本就不存在），
+      // 也不要求从左边缘起手——手机系统的左边缘返回手势会先截走触摸序列；
+      // 收起时侧栏和外侧遮罩都可以起手，遮罩上除了点击、左滑同样能返回。
       gesture = {
         identifier: touch.identifier,
         startX: touch.clientX,

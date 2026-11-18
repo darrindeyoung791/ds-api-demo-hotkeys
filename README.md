@@ -23,7 +23,7 @@ A static chat demo powered by the DeepSeek API. No application backend is requir
   - `Ctrl`+`,` opens Settings
   - `Ctrl` + `↑` / `↓` switches chats (switches between settings tabs while Settings is open)
 - Supports multi-selecting chats for bulk actions (not the official implementation; behavior differs)
-- Mobile portrait gestures: swipe in from the left edge to open the sidebar, swipe left inside it to close
+- Mobile portrait gestures: swipe right to open the sidebar, swipe left (inside the sidebar or on the area outside it) to close
 - Choose the model in Settings → General: `deepseek-flash`, `deepseek-v4-pro`, or enter a custom model name (might be useful when new models are released while this project doesn't catch up)
 
 ## Getting started
