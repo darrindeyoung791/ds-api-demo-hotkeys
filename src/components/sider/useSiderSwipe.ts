@@ -4,8 +4,6 @@ import { useHistorySearch } from '../historySearch/historySearchState.js'
 import { useSearchPanel } from '../search/searchPanelState.js'
 import { closeMobileSider, openMobileSider, useMobileSider } from './mobileSiderState.js'
 
-/** 从左边缘起手的横向范围：更靠右的横滑留给内容（代码块、表格等），避免抢走它们的滚动 */
-const EDGE_WIDTH = 32
 /** 抬手时判定为滑动的最小位移，短于此距离视为点击或手指抖动 */
 const MIN_DISTANCE = 64
 /** 快速轻扫：短时间内的较小位移也生效，贴近原生手势手感 */
@@ -107,12 +105,13 @@ export const useSiderSwipe = (enabled: boolean) => {
         return
       }
       const mode = useMobileSider.getState().open ? 'close' : 'open'
-      // 收起只认抽屉面板内的起手，遮罩上的滑动留给「点空白关闭」的既有行为
-      if (mode === 'open') {
-        if (touch.clientX > EDGE_WIDTH) {
-          return
-        }
-      } else if (!(target instanceof Element && target.closest('[data-mobile-sider]'))) {
+      // 展开手势只在主内容区监听：不放宽到抽屉（抽屉收起时本就不存在），也不要求从左边缘起手，
+      // 因为手机系统的左边缘返回手势会先截走触摸序列，导致页面永远收不到这次滑动。
+      // 收起只认抽屉面板内的起手，遮罩上的滑动留给「点空白关闭」的既有行为。
+      if (
+        mode === 'close' &&
+        !(target instanceof Element && target.closest('[data-mobile-sider]'))
+      ) {
         return
       }
       gesture = {
