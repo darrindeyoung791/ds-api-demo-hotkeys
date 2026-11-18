@@ -8,7 +8,7 @@ A static chat demo powered by the DeepSeek API. No application backend is requir
 
 >[!CAUTION]
 >
-> This project is not an official DeepSeek product or service, and does not represent DeepSeek's positions. Do not rely on this project's GitHub Pages; the page may be shut down or moved without notice.
+> This project is **NOT** an official DeepSeek product or service, and does not represent DeepSeek's positions. Do not rely on this project's GitHub Pages; the page may be shut down or moved without notice.
 
 ## Features
 
@@ -23,15 +23,15 @@ A static chat demo powered by the DeepSeek API. No application backend is requir
   - `Ctrl`+`,` opens Settings
   - `Ctrl` + `↑` / `↓` switches chats (switches between settings tabs while Settings is open)
 - Supports multi-selecting chats for bulk actions (not the official implementation; behavior differs)
-- Choose the model in Settings → General: `deepseek-flash`, `deepseek-v4-pro`, or enter a custom model name (useful when new models are released after this project stops being updated)
+- Choose the model in Settings → General: `deepseek-flash`, `deepseek-v4-pro`, or enter a custom model name (might be useful when new models are released while this project doesn't catch up)
 
 ## Getting started
 
 Install Node.js 22.12+ and pnpm, then run:
 
 ```sh
-git clone https://github.com/deepseek-ai/chat-demo.git
-cd chat-demo
+git clone https://github.com/darrindeyoung791/ds-api-demo-hotkeys.git
+cd ds-api-demo-hotkeys
 pnpm install
 pnpm dev
 ```
@@ -50,7 +50,7 @@ The output is written to `dist/`. Deploy it to a static web server or open `dist
 
 >[!CAUTION]
 >
-> Although this project is not malicious, you should not blindly trust any unfamiliar project that claims to be safe, especially one that asks you for an API key. Always audit the source code (including this project) to keep yourself safe.
+> This project is not malicious. However you should never blindly trust any unfamiliar project that claims to be safe, especially one that asks you for an API key. Always review the source code to keep yourself safe.
 
 Your API key and settings are stored in the browser's localStorage. Conversations and original attachments are stored in IndexedDB. Local data is isolated by browser profile and site origin. Sending messages, uploading attachments, and using speech features sends the relevant content to the configured API service.
 

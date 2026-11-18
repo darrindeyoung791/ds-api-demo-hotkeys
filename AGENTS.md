@@ -26,7 +26,7 @@
 
 ## 部署（GitHub Pages）
 
-- 推送到 `main` 触发 [pages.yml](.github/workflows/pages.yml)：`pnpm install --frozen-lockfile` → `pnpm type` → `pnpm lint` → `pnpm build` → 上传 `dist/` → `actions/deploy-pages` 发布到 <https://darrindeyoung791.github.io/ds-chat-demo/>。
+- 推送到 `main` 触发 [pages.yml](.github/workflows/pages.yml)：`pnpm install --frozen-lockfile` → `pnpm type` → `pnpm lint` → `pnpm build` → 上传 `dist/` → `actions/deploy-pages` 发布到 <https://darrindeyoung791.github.io/ds-api-demo-hotkeys/>。
 - 仓库的 Pages 来源设为 **GitHub Actions**（不是分支发布），部署环境名为 `github-pages`；发布只发生在 `main` 分支。
 - 产物资源是相对路径（`publicPath: 'auto'`），因此可以部署在仓库子路径下；不要改成绝对路径，否则 Pages 与 `file://` 打开都会失效。
 - 本仓库是 `deepseek-ai/chat-demo` 的 fork：若 Actions / Pages 处于停用状态，需要在仓库 Settings 里先启用，再推送触发部署。
