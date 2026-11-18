@@ -30,8 +30,8 @@
 准备 Node.js 22.12+ 和 pnpm：
 
 ```sh
-git clone https://github.com/deepseek-ai/chat-demo.git
-cd chat-demo
+git clone https://github.com/darrindeyoung791/ds-api-demo-hotkeys.git
+cd ds-api-demo-hotkeys
 pnpm install
 pnpm dev
 ```

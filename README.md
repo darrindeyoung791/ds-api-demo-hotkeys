@@ -30,8 +30,8 @@ A static chat demo powered by the DeepSeek API. No application backend is requir
 Install Node.js 22.12+ and pnpm, then run:
 
 ```sh
-git clone https://github.com/deepseek-ai/chat-demo.git
-cd chat-demo
+git clone https://github.com/darrindeyoung791/ds-api-demo-hotkeys.git
+cd ds-api-demo-hotkeys
 pnpm install
 pnpm dev
 ```
