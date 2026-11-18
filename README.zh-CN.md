@@ -1,10 +1,29 @@
-# chat-demo
+# DS API Demo with Hot Keys
 
 [English](README.md) | 简体中文
 
-基于 DeepSeek API 的静态聊天示例。无需应用后端，浏览器直接请求配置的 API 服务。
+本项目修改自 DeepSeek [原版 Chat Demo](https://github.com/deepseek-ai/chat-demo)，在功能上进行一定补全。支持原官方网页端的快捷键和历史对话搜索功能。
 
-点击 [在线体验](https://deepseek-ai.github.io/chat-demo/) 即可使用，也可以前往 [Releases](https://github.com/deepseek-ai/deepseek-chat-demo/releases) 下载压缩包，解压后双击 `index.html` 在本地使用，无需安装或构建。首次使用时，请在设置中填写 API Key。
+基于 DeepSeek API 的静态聊天示例，无需应用后端，浏览器直接请求配置的 API 服务。使用前，请在设置中填写 API Key。
+
+>[!CAUTION] 注意
+>
+> 本项目并非 DeepSeek 官方产品或服务，也不代表 DeepSeek 的立场。请不要依赖本项目的 GitHub Pages，页面可能不经通知随时关闭或更改地址。
+
+## 特点功能
+
+>[!CAUTION] 注意
+>
+> 下列功能如有 Bug，请在本项目提 issue 或者 PR，不要去官方 chat demo 存储库请求修改
+
+- 支持 [官方网页端](https://chat.deepseek.com/) 中的快捷键:
+  - `Ctrl`+`J` 开启新对话
+  - `Ctrl`+`K` 搜索历史对话（并非官方原版实现，行为上存在差异）
+- 支持一部分官方没有的快捷键：
+  - `Ctrl`+`,` 开启设置
+  - `Ctrl` + `↑` / `↓` 上下切换对话（如果在设置中，则上下切换设置标签页）
+- 支持多选对话处理（并非官方原版实现，行为上存在差异）
+- 支持在设置 → 通用设置中选择模型：`deepseek-flash`、`deepseek-v4-pro`，或填写自定义模型名（如果本项目停更而新模型推出的话会有用）
 
 ## 运行
 
@@ -27,17 +46,11 @@ pnpm build
 
 产物位于 `dist/`，可部署到静态服务器，也可直接打开 `dist/index.html`。直接打开时，浏览器和 API 服务需允许 `file://` 页面的存储与跨域请求。
 
-## 功能
-
-- 多会话、自动标题、重命名与删除；编辑提问、重新生成和切换消息分支。
-- 流式回答、深度思考、智能搜索、链接阅读与来源引用；支持停止和符合条件的继续生成。
-- 附件上传、粘贴与拖拽，语音输入和回复朗读；移动端录音时输入框首行显示实时频谱。
-- Markdown、代码高亮、KaTeX 公式和 Mermaid 图表。
-- 快捷键：Ctrl+J 新建对话、Ctrl+K 搜索历史对话、Ctrl+, 打开设置、Ctrl+↑/↓ 切换对话；侧边栏支持多选后批量删除。
-- 在设置 → 通用设置中选择模型：`deepseek-flash`、`deepseek-v4-pro`，或填写自定义模型名。
-- 简体中文与英文、浅色与深色主题、移动端布局、位置设置、历史导入导出。
-
 ## 数据
+
+>[!CAUTION] 注意
+>
+> 虽然本项目没有恶意，但您也不应当轻信任何自称安全的陌生项目，尤其是需要您提供 API Key 的项目。请始终审计源码（包括本项目）确保您的安全。
 
 API Key 和设置保存在浏览器 localStorage，会话及附件原件保存在 IndexedDB，本地数据按浏览器用户配置和站点源（origin）隔离。发送对话、上传附件和使用语音功能时，相应内容会提交给配置的 API 服务。
 

@@ -1,10 +1,29 @@
-# chat-demo
+# DS API Demo with Hot Keys
 
 English | [简体中文](README.zh-CN.md)
 
-A static chat demo powered by the DeepSeek API. No application backend is required: the browser connects directly to the configured API service.
+This project is modified from DeepSeek's [original Chat Demo](https://github.com/deepseek-ai/chat-demo) with some feature additions. It supports the keyboard shortcuts and chat history search of the official web client.
 
-You can [try the app online](https://deepseek-ai.github.io/chat-demo/) or download the archive from [Releases](https://github.com/deepseek-ai/deepseek-chat-demo/releases), extract it, and double-click `index.html` to use it locally without installation or a build. Enter your API key in Settings before your first chat.
+A static chat demo powered by the DeepSeek API. No application backend is required: the browser connects directly to the configured API service. Enter your API key in Settings before your first chat.
+
+>[!CAUTION]
+>
+> This project is not an official DeepSeek product or service, and does not represent DeepSeek's positions. Do not rely on this project's GitHub Pages; the page may be shut down or moved without notice.
+
+## Features
+
+>[!CAUTION]
+>
+> If any of the features below has a bug, please open an issue or PR in this project instead of asking the upstream chat demo repository for changes.
+
+- Supports the shortcuts from the [official web client](https://chat.deepseek.com/):
+  - `Ctrl`+`J` starts a new chat
+  - `Ctrl`+`K` searches chat history (not the official implementation; behavior differs)
+- Supports some shortcuts the official client does not have:
+  - `Ctrl`+`,` opens Settings
+  - `Ctrl` + `↑` / `↓` switches chats (switches between settings tabs while Settings is open)
+- Supports multi-selecting chats for bulk actions (not the official implementation; behavior differs)
+- Choose the model in Settings → General: `deepseek-flash`, `deepseek-v4-pro`, or enter a custom model name (useful when new models are released after this project stops being updated)
 
 ## Getting started
 
@@ -25,25 +44,19 @@ To build the static site:
 pnpm build
 ```
 
-The output is written to `dist/`. Deploy it to a static web server or open `dist/index.html` directly. Opening the file directly requires browser support for storage on `file://` pages and an API service that permits their cross-origin requests.
+The output is written to `dist/`. Deploy it to a static web server or open `dist/index.html` directly. Opening the file directly requires the browser and the API service to allow storage and cross-origin requests for `file://` pages.
 
-## Features
+## Data
 
-- Multiple conversations with automatic titles, renaming, and deletion; edit prompts, regenerate replies, and switch between message branches.
-- Streaming replies, deep thinking, smart search, link reading, and source citations; stop generation or continue eligible replies.
-- Upload, paste, or drag and drop attachments; use voice input and read replies aloud. A live audio spectrum appears in the first row of the input area while recording on mobile.
-- Markdown, syntax highlighting, KaTeX math, and Mermaid diagrams.
-- Keyboard shortcuts: Ctrl+J starts a new chat, Ctrl+K searches chat history, Ctrl+, opens Settings, and Ctrl+↑/↓ switches chats. Sidebar chats can be multi-selected and deleted in bulk.
-- Choose the model in Settings → General: `deepseek-flash`, `deepseek-v4-pro`, or a custom model name.
-- Simplified Chinese and English, light and dark themes, mobile layouts, location settings, and chat history import and export.
-
-## Data and storage
+>[!CAUTION]
+>
+> Although this project is not malicious, you should not blindly trust any unfamiliar project that claims to be safe, especially one that asks you for an API key. Always audit the source code (including this project) to keep yourself safe.
 
 Your API key and settings are stored in the browser's localStorage. Conversations and original attachments are stored in IndexedDB. Local data is isolated by browser profile and site origin. Sending messages, uploading attachments, and using speech features sends the relevant content to the configured API service.
 
-History import and export in Settings use ZIP archives. After confirmation and successful validation, importing replaces all local conversations and attachments. Exports include conversations and locally available original images, but exclude API keys, settings, and original non-image attachments. See the [history import/export documentation (Chinese)](src/services/chat/history/README.md) for the archive format and preservation details.
+History import and export in Settings use ZIP archives. After confirmation and successful validation, importing replaces all local conversations and attachments. Exports include conversations and locally available original images, but exclude API keys, settings, and original non-image attachments. See the [history import/export documentation](src/services/chat/history/README.md) for the archive format and preservation details.
 
-Settings → Data → Delete all chats clears all local conversations, original attachments, and unsent drafts after confirmation. It stops ongoing replies and returns to a new chat. Your API key and settings are preserved; files already uploaded to the API service are not deleted.
+Settings → Data → Delete all chats clears all local conversations, original attachments, and unsent drafts after confirmation. It stops ongoing replies and returns to a new chat. Your API key and other settings are preserved; files already uploaded to the API service are not affected.
 
 ## Development
 
@@ -57,7 +70,7 @@ Settings → Data → Delete all chats clears all local conversations, original 
 
 [rspack.config.ts](rspack.config.ts) uses `https://api.deepseek.com` by default. Use `createConfig({ apiOrigin, devServer })` to customize the API origin and development server proxy.
 
-Chat uses `deepseek-flash` by default (switch models or enter a custom model name in Settings) through Anthropic-compatible Messages / Files APIs. Speech features use ASR / TTS endpoints. Requests include extensions for search, link reading, titles, and `latest_reminder`, so the configured service must support the corresponding capabilities. Supported attachment formats are determined by server-side validation.
+Chat uses `deepseek-flash` by default (switch models or enter a custom model name in Settings) and communicates through Anthropic-compatible Messages / Files APIs. Speech features use ASR / TTS endpoints. Requests include extensions such as search, link reading, titles, and `latest_reminder`, so the configured service must support the corresponding capabilities. Supported attachment formats are determined by server-side validation.
 
 ```text
 src/
