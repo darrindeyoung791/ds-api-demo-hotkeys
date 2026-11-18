@@ -6,13 +6,13 @@
 
 基于 DeepSeek API 的静态聊天示例，无需应用后端，浏览器直接请求配置的 API 服务。使用前，请在设置中填写 API Key。
 
->[!CAUTION] 注意
+>[!CAUTION]
 >
 > 本项目并非 DeepSeek 官方产品或服务，也不代表 DeepSeek 的立场。请不要依赖本项目的 GitHub Pages，页面可能不经通知随时关闭或更改地址。
 
 ## 特点功能
 
->[!CAUTION] 注意
+>[!CAUTION]
 >
 > 下列功能如有 Bug，请在本项目提 issue 或者 PR，不要去官方 chat demo 存储库请求修改
 
@@ -48,7 +48,7 @@ pnpm build
 
 ## 数据
 
->[!CAUTION] 注意
+>[!CAUTION]
 >
 > 虽然本项目没有恶意，但您也不应当轻信任何自称安全的陌生项目，尤其是需要您提供 API Key 的项目。请始终审计源码（包括本项目）确保您的安全。
 
