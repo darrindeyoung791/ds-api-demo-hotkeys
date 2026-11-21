@@ -19,7 +19,7 @@ import {
 } from '../../services/chat/backup.js'
 import { useIsMobile } from '../../app/viewport.js'
 import { useChatStore } from '../../services/chat/store.js'
-import { REPO_URL, termsUrl } from '../../services/links.js'
+import { REPO_URL, termsUrl, WHALE_GIRL_ART_URL } from '../../services/links.js'
 import { regionCodes, getRegionName, provinces } from '../../services/location.js'
 import {
   isChineseBrowser,
@@ -188,23 +188,20 @@ const AboutSection = () => {
   return (
     <div className={styles.about}>
       <div className={styles.aboutName}>{t('appName')}</div>
-      {version ? (
-        <div className={styles.aboutVersion}>{t('aboutVersion', { version })}</div>
-      ) : null}
+      {version ? <div className={styles.aboutVersion}>{t('aboutVersion', { version })}</div> : null}
       <p className={styles.aboutText}>{t('aboutDisclaimer')}</p>
       <div className={styles.aboutLinks}>
         <a className={styles.aboutLink} href={REPO_URL} target="_blank" rel="noreferrer">
           <IconLinkOutline16 />
           {t('aboutRepoLink')}
         </a>
-        <a
-          className={styles.aboutLink}
-          href={termsUrl(locale)}
-          target="_blank"
-          rel="noreferrer"
-        >
+        <a className={styles.aboutLink} href={termsUrl(locale)} target="_blank" rel="noreferrer">
           <IconLinkOutline16 />
           {t('aboutTermsLink')}
+        </a>
+        <a className={styles.aboutLink} href={WHALE_GIRL_ART_URL} target="_blank" rel="noreferrer">
+          <IconLinkOutline16 />
+          {t('aboutWhaleGirlLink')}
         </a>
       </div>
       <div className={styles.aboutSection}>

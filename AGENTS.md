@@ -102,7 +102,8 @@ src/
 - [sw.js](src/pwa/sw.js) 不参与打包，由 `CopyRspackPlugin` 复制到 `dist/` 根目录。**必须留在站点根目录**：GitHub Pages 不能设置 `Service-Worker-Allowed`，放进子目录会缩成只覆盖该子目录的默认作用域。复制过去的 JS 会被构建期压缩，排查线上缓存问题时对照源码。
 - 缓存策略是「运行时缓存」而不是构建期预缓存清单：导航走 network-first（部署后立即拿到新 HTML），同源静态资源缓存优先 + 后台重新验证，条目数有上限（`MAX_ENTRIES`）。新增同源资源不需要改 `sw.js`。
 - **只接管同源 GET**：API 与 SSE 流必须由浏览器直连，跨域请求、`POST`、`Range` 请求一律不 `respondWith`；任何情况下都不得把 API 响应写入缓存（聊天内容是隐私数据，流式响应也无法缓存）。
-- 清单由 [rspack.config.ts](rspack.config.ts) 的 `PwaManifestPlugin` 生成（`name` 取 `zh.appName`），`start_url` / `scope` / 图标路径都相对清单自身解析，保证子路径部署可用；图标源文件在 `src/pwa/icons/`，构建时复制到 `dist/icons/`。
+- 清单由 [rspack.config.ts](rspack.config.ts) 的 `PwaManifestPlugin` 生成（`name` 取 `zh.appName`），`start_url` / `scope` / 图标路径都相对清单自身解析，保证子路径部署可用；图标源文件在 `src/pwa/icons/`（说明见 [pwa/README.md](src/pwa/README.md)），构建时复制到 `dist/icons/`。
+- 图标是**鲸鱼娘插画**（<https://github.com/AATINF/deepseek-whale-girl-assets>），署名是使用条件：`README*.md` 的「图片来源 / Credits」与设置 → 关于（`aboutWhaleGirlLink`、`WHALE_GIRL_ART_URL`）必须保留，替换图标时一起更新。清单图标**必须用 PNG**（Chrome 的安装条件不接受 JPEG），512 那张同时声明 `any maskable`，细节见 [pwa/README.md](src/pwa/README.md)。
 - 修改缓存逻辑时递增 `sw.js` 的 `CACHE_NAME`：`activate` 只清理同前缀（`chat-demo-`）的旧缓存，避免误删 github.io 同源下其他仓库的缓存。
 
 ### 历史归档

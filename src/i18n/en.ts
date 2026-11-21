@@ -98,7 +98,8 @@ export const en = {
   settingsLocationCity: 'Select city',
   settingsLocationRegion: 'Select country or region',
   settingsModel: 'Model',
-  settingsModelDescription: 'Used for messages you send from now on; existing replies keep their model.',
+  settingsModelDescription:
+    'Used for messages you send from now on; existing replies keep their model.',
   settingsModelFlashOption: 'deepseek-flash',
   settingsModelProOption: 'deepseek-v4-pro',
   settingsModelCustomOption: 'Custom',
@@ -194,6 +195,7 @@ export const en = {
     'This page is a community demo built on the DeepSeek API. It is not an official DeepSeek product or service and does not represent DeepSeek.',
   aboutRepoLink: 'GitHub repository',
   aboutTermsLink: 'DeepSeek Terms of Use',
+  aboutWhaleGirlLink: 'Icon artwork: whale girl',
   settingsShortcutsTitle: 'Keyboard shortcuts',
   shortcutSwitchChat: 'Switch chats; switch settings tabs while Settings is open',
   shortcutModifierNote: 'On macOS you can use ⌘ instead of Ctrl.',

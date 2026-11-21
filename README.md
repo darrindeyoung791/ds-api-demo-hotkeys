@@ -111,6 +111,10 @@ src/
   utils/               Shared utilities
 ```
 
+## Credits
+
+The PWA icon artwork is the **whale girl** illustration from [AATINF/deepseek-whale-girl-assets](https://github.com/AATINF/deepseek-whale-girl-assets); all rights belong to its original authors. If you replace the icons, keep this attribution and the matching link in Settings → About.
+
 ## License
 
 [MIT](LICENSE). The build copies the license to `dist/LICENSE`; include it when distributing the app. Third-party dependencies are subject to their own licenses.
