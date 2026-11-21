@@ -185,6 +185,7 @@ export const zh = {
     '本页面是使用 DeepSeek API 的社区演示项目，并非 DeepSeek 官方产品或服务，也不代表 DeepSeek 的立场。',
   aboutRepoLink: 'GitHub 存储库',
   aboutTermsLink: 'DeepSeek 用户协议',
+  aboutWhaleGirlLink: '图标插画：鲸鱼娘',
   settingsShortcutsTitle: '快捷键',
   shortcutSwitchChat: '切换对话；设置打开时切换设置标签页',
   shortcutModifierNote: 'macOS 上可以用 ⌘ 代替 Ctrl。',

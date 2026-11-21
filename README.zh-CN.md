@@ -111,6 +111,10 @@ src/
   utils/               通用工具
 ```
 
+## 图片来源
+
+PWA 图标使用的是**鲸鱼娘（whale girl）**插画，来自 [AATINF/deepseek-whale-girl-assets](https://github.com/AATINF/deepseek-whale-girl-assets)，版权归原作者所有。替换图标时请保留这处署名，以及设置 → 关于中的对应链接。
+
 ## 许可证
 
 [MIT](LICENSE)。构建会将许可证复制到 `dist/LICENSE`，分发时请一并保留；第三方依赖遵循各自的许可证。

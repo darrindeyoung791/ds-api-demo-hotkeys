@@ -29,14 +29,16 @@ const manifest = {
   display: 'standalone',
   background_color: '#ffffff',
   theme_color: '#ffffff',
+  // 图标必须是 PNG/SVG：Chrome 的安装条件不接受 JPEG（会报 manifest-missing-suitable-icon）。
+  // 插画是满幅构图，边缘本身就是画面内容，因此 512 同时声明为 any 与 maskable——
+  // 另做一张留白的 maskable 会在裁切处露出硬边。
   icons: [
     { src: './icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-    { src: './icons/icon-512.png', sizes: '512x512', type: 'image/png' },
     {
-      src: './icons/icon-maskable-512.png',
+      src: './icons/icon-512.png',
       sizes: '512x512',
       type: 'image/png',
-      purpose: 'maskable',
+      purpose: 'any maskable',
     },
   ],
 }
