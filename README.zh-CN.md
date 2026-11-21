@@ -6,7 +6,7 @@
 
 本项目是基于 DeepSeek API 的静态聊天示例，无需应用后端，浏览器直接请求配置的 API 服务。使用前，请在设置中填写 API Key。
 
->[!CAUTION]
+> [!CAUTION]
 >
 > 本项目并非 DeepSeek 官方产品或服务，也不代表 DeepSeek。
 >
@@ -14,7 +14,7 @@
 
 ## 特点功能
 
->[!CAUTION]
+> [!CAUTION]
 >
 > 下列功能如有 Bug，请在本项目提 issue 或者 PR，不要去官方 chat demo 存储库请求修改
 
@@ -27,6 +27,7 @@
 - 支持多选对话处理（并非官方原版实现，行为上存在差异）
 - 移动端竖屏支持手势：向右滑动展开侧边栏，向左滑动（侧栏内或侧栏外区域）收起
 - 支持在设置 → 通用设置中选择模型：`deepseek-flash`、`deepseek-v4-pro`，或填写自定义模型名（如果本项目停更而新模型推出的话会有用）
+- 支持安装为 PWA：部署到 http(s) 后可用浏览器「安装」到桌面或添加到主屏，以独立窗口运行；离开网络时仍能打开页面并查看本机保存的历史对话（发起对话仍需联网）
 
 ## 运行
 
@@ -47,7 +48,7 @@ pnpm dev
 pnpm build
 ```
 
-产物位于 `dist/`，可部署到静态服务器，也可直接打开 `dist/index.html`。直接打开时，浏览器和 API 服务需允许 `file://` 页面的存储与跨域请求。
+产物位于 `dist/`，部署到任意静态服务器即可，请通过 http(s) 访问。站点同时是一个 PWA：首次访问后会注册 Service Worker，可以「安装」到桌面或主屏，之后断网也能打开页面并查看本机保存的历史对话。注意：直接双击打开 `dist/index.html`（`file://`）已不支持——Service Worker 与 API 请求都需要 http(s) 环境。
 
 ## 自行部署 GitHub Pages
 
@@ -64,11 +65,13 @@ pnpm build
 
 若不想用 Actions，也可以本地执行 `pnpm build`，把 `dist/` 的内容上传到任意静态托管服务（Pages、对象存储、Nginx 等），效果相同。子路径部署时不要手工把资源改成绝对路径。
 
+产物根目录的 `manifest.json`、`sw.js` 与 `icons/` 构成 PWA。GitHub Pages 不能自定义响应头，也无法设置 `Service-Worker-Allowed`：因此 `sw.js` 必须留在站点根目录（否则作用域会缩小），Service Worker 的更新也可能延迟到约 10 分钟。页面本身走 network-first，正常刷新总会拿到最新版本，缓存只用于离线兜底。
+
 API 地址在构建期注入（默认 `https://api.deepseek.com`）。需要换用其他 API 服务时，修改 [rspack.config.ts](rspack.config.ts) 中 `createConfig()` 的 `apiOrigin` 后再构建，接入的服务需支持 Messages / Files 与语音接口（见下文开发说明）。
 
 ## 数据
 
->[!CAUTION]
+> [!CAUTION]
 >
 > 虽然本项目没有恶意，但您也不应当轻信任何自称安全的陌生项目，尤其是需要您提供 API Key 的项目。请始终审计源码（包括本项目）确保您的安全。
 >
@@ -99,6 +102,7 @@ src/
   app/                 应用布局、主题与全局样式
   components/          聊天、设置、Markdown 等界面组件
   i18n/                中英文文案
+  pwa/                 Service Worker 与 PWA 图标（构建时复制到站点根目录）
   services/
     api/               API 请求、SSE 与协议类型
     chat/              会话、消息分支、本地存储与历史导入导出

@@ -6,15 +6,15 @@ This project is modified from DeepSeek's [original chat demo](https://github.com
 
 This project is a static chat demo powered by the DeepSeek API. No application backend is required: the browser connects directly to the configured API service. Enter your API key in Settings before your first chat.
 
->[!CAUTION]
+> [!CAUTION]
 >
-> This project is **NOT** an official DeepSeek product or service, and does not represent DeepSeek. 
+> This project is **NOT** an official DeepSeek product or service, and does not represent DeepSeek.
 >
 > Please do **NOT** rely on this project's demo GitHub Pages; the page may be shut down or moved without notice.
 
 ## Features
 
->[!CAUTION]
+> [!CAUTION]
 >
 > If any of the features below has a bug, please open an issue or PR in this project instead of asking the upstream chat demo repository for changes.
 
@@ -27,6 +27,7 @@ This project is a static chat demo powered by the DeepSeek API. No application b
 - Supports multi-selecting chats for bulk actions (not the official implementation; behavior may differ)
 - Mobile portrait gestures: swipe right to open the sidebar, swipe left (inside the sidebar or on the area outside it) to close
 - Choose the model in Settings → General: `deepseek-flash`, `deepseek-v4-pro`, or enter a custom DeepSeek model name (useful in case new models are released before this project catches up)
+- Installable as a PWA: once deployed over http(s) you can install it to the desktop or add it to the home screen and run it in its own window; with no network you can still open the app and read your locally stored conversations (sending new messages requires network)
 
 ## Getting started
 
@@ -47,7 +48,7 @@ To build the static site:
 pnpm build
 ```
 
-The output is written to `dist/`. Deploy it to a static web server or open `dist/index.html` directly. Opening the file directly requires the browser and the API service to allow storage and cross-origin requests for `file://` pages.
+The output is written to `dist/`. Deploy it to any static web server and serve it over http(s). The site is also a PWA: the first visit registers a service worker, so you can install it to the desktop or home screen and still open it (with your locally stored conversations) while offline. Note: opening `dist/index.html` directly from disk (`file://`) is no longer supported — service workers and API requests both require an http(s) origin.
 
 ## Deploying your own GitHub Pages
 
@@ -64,11 +65,13 @@ The build uses relative asset paths (`publicPath: 'auto'`), so it works under a 
 
 If you prefer not to use Actions, run `pnpm build` locally and upload the contents of `dist/` to any static host (Pages, object storage, Nginx, and so on); the result is the same. When deploying under a subpath, do not hand-edit the assets into absolute paths.
 
+`manifest.json`, `sw.js`, and `icons/` in the output root make up the PWA. GitHub Pages cannot set custom response headers, so `Service-Worker-Allowed` is unavailable: `sw.js` must stay at the site root (otherwise its scope shrinks), and service worker updates can be delayed by roughly 10 minutes. Page loads are network-first, so a normal refresh always gets the latest build; the cache is only an offline fallback.
+
 The API origin is injected at build time (default `https://api.deepseek.com`). To use another API service, change `apiOrigin` in `createConfig()` in [rspack.config.ts](rspack.config.ts) before building; the service must support the Messages / Files APIs and the speech endpoints (see Development below).
 
 ## Data
 
->[!CAUTION]
+> [!CAUTION]
 >
 > This project is not malicious. However you should never blindly trust any unfamiliar project that claims to be safe, especially one that asks you for an API key. Always review the source code to keep yourself safe.
 >
@@ -99,6 +102,7 @@ src/
   app/                 Application layout, themes, and global styles
   components/          Chat, settings, Markdown, and other UI components
   i18n/                English and Chinese translations
+  pwa/                 Service worker and PWA icons (copied to the site root at build time)
   services/
     api/               API requests, SSE, and protocol types
     chat/              Conversations, message branches, storage, and history import/export
