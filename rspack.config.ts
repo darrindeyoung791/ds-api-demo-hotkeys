@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from '@rspack/cli'
-import { rspack, type Configuration } from '@rspack/core'
+import { rspack, type Compiler, type Configuration } from '@rspack/core'
 import { zh } from './src/i18n/zh.js'
 
 const dev = process.env.NODE_ENV !== 'production'
@@ -15,6 +15,44 @@ const { version } = JSON.parse(
 const cssLoader = {
   loader: 'builtin:lightningcss-loader',
   options: { targets },
+}
+
+/**
+ * PWA 清单。应用名取自 i18n（与 index.html 的标题同源），所有路径都相对清单自身解析，
+ * 因此部署在仓库子路径下同样可用。
+ */
+const manifest = {
+  name: zh.appName,
+  short_name: zh.appName,
+  start_url: './',
+  scope: './',
+  display: 'standalone',
+  background_color: '#ffffff',
+  theme_color: '#ffffff',
+  icons: [
+    { src: './icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+    { src: './icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+    {
+      src: './icons/icon-maskable-512.png',
+      sizes: '512x512',
+      type: 'image/png',
+      purpose: 'maskable',
+    },
+  ],
+}
+
+/** 把清单作为资产输出到 dist 根目录，避免应用名在配置里再抄一份 */
+class PwaManifestPlugin {
+  apply(compiler: Compiler): void {
+    compiler.hooks.thisCompilation.tap('PwaManifestPlugin', (compilation) => {
+      compilation.hooks.processAssets.tap('PwaManifestPlugin', () => {
+        compilation.emitAsset(
+          'manifest.json',
+          new rspack.sources.RawSource(JSON.stringify(manifest, null, 2))
+        )
+      })
+    })
+  }
 }
 
 type ConfigOptions = {
@@ -33,7 +71,7 @@ export const createConfig = ({
   entry: './src/main.tsx',
   output: {
     path: path.resolve(root, 'dist'),
-    // 运行时按当前脚本地址推导资源路径，file:// 下异步 chunk、字体都按相对位置加载
+    // 运行时按当前脚本地址推导资源路径，部署到仓库子路径（GitHub Pages）时异步 chunk、字体都按相对位置加载
     publicPath: 'auto',
     filename: 'static/js/[name].[contenthash:8].js',
     chunkFilename: 'static/js/async/[name].[contenthash:8].js',
@@ -75,16 +113,25 @@ export const createConfig = ({
     ],
   },
   plugins: [
-    // 经典 defer 脚本支持 file:// 页面的资源加载；标题取 i18n 里的应用名，避免两处维护
+    // 经典 defer 脚本在 DOM 解析完成后执行；标题取 i18n 里的应用名，避免两处维护
     new rspack.HtmlRspackPlugin({
       template: './src/index.html',
       scriptLoading: 'defer',
       meta: { 'application-version': version },
       templateParameters: { appName: zh.appName },
     }),
-    new rspack.DefinePlugin({ __API_ORIGIN__: JSON.stringify(apiOrigin) }),
+    new PwaManifestPlugin(),
+    new rspack.DefinePlugin({
+      __API_ORIGIN__: JSON.stringify(apiOrigin),
+      __PRODUCTION__: JSON.stringify(!dev),
+    }),
     new rspack.CopyRspackPlugin({
-      patterns: [{ from: path.resolve(root, 'LICENSE'), to: 'LICENSE', toType: 'file' }],
+      patterns: [
+        { from: path.resolve(root, 'LICENSE'), to: 'LICENSE', toType: 'file' },
+        // Service Worker 必须位于站点根目录：默认作用域等于其所在目录，GitHub Pages 无法设置 Service-Worker-Allowed
+        { from: path.resolve(root, 'src/pwa/sw.js'), to: 'sw.js', toType: 'file' },
+        { from: path.resolve(root, 'src/pwa/icons'), to: 'icons', toType: 'dir' },
+      ],
     }),
   ],
   performance: { hints: false },

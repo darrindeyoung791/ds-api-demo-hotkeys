@@ -5,7 +5,7 @@
 ## 项目速览
 
 - chat-demo 是基于 DeepSeek API 的**纯静态**聊天示例：React 18 + TypeScript + rspack，zustand 管理状态，**没有应用后端**，浏览器直接请求构建时注入的 API 地址。
-- 产物必须同时满足两种运行方式：部署到任意静态服务器，以及**直接双击打开 `dist/index.html`（`file://`）**。因此构建配置坚持 `publicPath: 'auto'`、`scriptLoading: 'defer'`，资源全部相对定位；任何改动都不能破坏这条约束（例如引入绝对路径资源、Service Worker 或依赖 `http(s)` 的启动流程）。
+- 产物按 **http(s) 静态站点**设计（GitHub Pages 子路径、自定义域名均可），构建配置坚持 `publicPath: 'auto'`、`scriptLoading: 'defer'`，资源全部相对定位；任何改动都不能引入绝对路径资源。**直接双击打开 `dist/index.html`（`file://`）已不是支持目标**：Service Worker 只在安全上下文注册，PWA 能力与 API 请求都需要 http(s) 或 localhost。
 - 单包仓库（无 workspace、无私有 registry），无测试框架，无测试脚本。
 
 ## 常用命令
@@ -28,17 +28,17 @@
 
 - 推送到 `main` 触发 [pages.yml](.github/workflows/pages.yml)：`pnpm install --frozen-lockfile` → `pnpm type` → `pnpm lint` → `pnpm build` → 上传 `dist/` → `actions/deploy-pages` 发布到 <https://darrindeyoung791.github.io/ds-api-demo-hotkeys/>。
 - 仓库的 Pages 来源设为 **GitHub Actions**（不是分支发布），部署环境名为 `github-pages`；发布只发生在 `main` 分支。
-- 产物资源是相对路径（`publicPath: 'auto'`），因此可以部署在仓库子路径下；不要改成绝对路径，否则 Pages 与 `file://` 打开都会失效。
+- 产物资源是相对路径（`publicPath: 'auto'`），因此可以部署在仓库子路径下；不要改成绝对路径，否则 Pages 子路径部署会失效。PWA 清单里的 `start_url` / `scope` / 图标路径同样保持相对写法。
 - 本仓库是 `deepseek-ai/chat-demo` 的 fork：若 Actions / Pages 处于停用状态，需要在仓库 Settings 里先启用，再推送触发部署。
 
 ## 目录与职责
 
 ```text
 src/
-  main.tsx             入口：ensureKatex()、setupTheme() 之后渲染 <App />
-  index.html           HTML 模板（HtmlRspackPlugin 注入脚本、标题与 application-version）
-  env.d.ts             全局声明：CSS Modules、__API_ORIGIN__、Prism/KaTeX 副作用模块
-  app/                 布局（App.tsx）、全局快捷键（shortcuts.ts）、主题（theme.ts / theme.css）、全局样式、视口与移动端 hook
+  main.tsx             入口：ensureKatex()、setupTheme() 之后渲染 <App />，再 setupPwa()
+  index.html           HTML 模板（HtmlRspackPlugin 注入脚本、标题、application-version 与 PWA 链接）
+  env.d.ts             全局声明：CSS Modules、__API_ORIGIN__、__PRODUCTION__、Prism/KaTeX 副作用模块
+  app/                 布局（App.tsx）、全局快捷键（shortcuts.ts）、主题（theme.ts / theme.css）、PWA 注册（pwa.ts）、全局样式、视口与移动端 hook
   components/
     base/              通用控件：Button、IconButton、Menu、Modal、Select、Tooltip、Toast、icons
     chatInput/         输入框、附件草稿、拖拽遮罩、语音输入与频谱
@@ -50,6 +50,7 @@ src/
     settings/          设置弹窗、API Key 表单、弹窗状态
     sider/             侧边栏、会话项、移动端抽屉
   i18n/                zh.ts 为键的权威来源，en.ts 必须覆盖同一组键
+  pwa/                 sw.js（原样复制到站点根目录）与 icons/（构建时复制到 dist/icons/）
   services/
     api/               fetch 封装、错误分类、SSE 解析、事件解析、协议类型、ASR/TTS
     chat/              会话 store、分支树、持久化（idb）、草稿、请求组装、导入导出
@@ -95,6 +96,15 @@ src/
 - 每个操作拿到连接后立即创建事务；同步抛错不会自动回滚事务，需 `abortTransaction()` 显式中止（参考 `saveSession`、`commitStaging`）。
 - 历史导入是「暂存 → 校验 → 单事务替换」：替换失败时原有数据必须保持不变；删除会话只清理不再被任何会话引用的本地原件，远端文件不删。
 
+### PWA 与 Service Worker
+
+- 注册入口是 [pwa.ts](src/app/pwa.ts)：只在生产构建（`__PRODUCTION__`）且页面为 `http:` / `https:` 时注册。开发服务器带 HMR，Service Worker 缓存会干扰热更新；`file://` 不支持 Service Worker，两种情况都直接跳过。
+- [sw.js](src/pwa/sw.js) 不参与打包，由 `CopyRspackPlugin` 复制到 `dist/` 根目录。**必须留在站点根目录**：GitHub Pages 不能设置 `Service-Worker-Allowed`，放进子目录会缩成只覆盖该子目录的默认作用域。复制过去的 JS 会被构建期压缩，排查线上缓存问题时对照源码。
+- 缓存策略是「运行时缓存」而不是构建期预缓存清单：导航走 network-first（部署后立即拿到新 HTML），同源静态资源缓存优先 + 后台重新验证，条目数有上限（`MAX_ENTRIES`）。新增同源资源不需要改 `sw.js`。
+- **只接管同源 GET**：API 与 SSE 流必须由浏览器直连，跨域请求、`POST`、`Range` 请求一律不 `respondWith`；任何情况下都不得把 API 响应写入缓存（聊天内容是隐私数据，流式响应也无法缓存）。
+- 清单由 [rspack.config.ts](rspack.config.ts) 的 `PwaManifestPlugin` 生成（`name` 取 `zh.appName`），`start_url` / `scope` / 图标路径都相对清单自身解析，保证子路径部署可用；图标源文件在 `src/pwa/icons/`，构建时复制到 `dist/icons/`。
+- 修改缓存逻辑时递增 `sw.js` 的 `CACHE_NAME`：`activate` 只清理同前缀（`chat-demo-`）的旧缓存，避免误删 github.io 同源下其他仓库的缓存。
+
 ### 历史归档
 
 - 归档格式 `export_format_version = 3`，结构、字段与导入/导出语义见 [history/README.md](src/services/chat/history/README.md)、[format.ts](src/services/chat/history/format.ts)、[schema.ts](src/services/chat/history/schema.ts)。
@@ -135,6 +145,7 @@ src/
 - **设置项**：`services/settings.ts` 增加 `KEYS` 键、`useSettings` 初值与 setter，补设置弹窗 UI；影响提示词时同步 `latestReminder.ts`。
 - **新组件**：放到对应的 `components/<feature>/`，`<Name>.tsx` + 可选 `<Name>.module.css`，命名导出。
 - **API 地址 / 开发代理**：用 `rspack.config.ts` 导出的 `createConfig({ apiOrigin, devServer })`，不要硬编码域名。
+- **PWA / 缓存策略**：`src/pwa/sw.js`（缓存与离线回退）、`src/app/pwa.ts`（注册条件）、`rspack.config.ts` 的 `PwaManifestPlugin` 与 `CopyRspackPlugin`（清单、图标、sw.js 的落位）；改缓存逻辑递增 `CACHE_NAME`，换图标整套替换 `src/pwa/icons/`。
 - **行为变化**：同步 `README.md` 与 `README.zh-CN.md`，两者内容需对应。
 
 ## 陷阱与注意事项
@@ -146,7 +157,7 @@ src/
 - 删除会话 / 导入历史期间需要锁定交互（`importingHistory`、`deletingSessions`），新增入口时别忘了同样的守卫。
 - 思考块、工具块与签名需要**原样回传**才能让服务端恢复上下文；历史请求只回传 `read_link` 的调用与结果，历史思考和其他工具块不回传（[reply.ts](src/services/chat/reply.ts)）。修改内容块结构时先读该文件的注释。
 - 错误回复、拒绝回复、服务端模板回复都要保留在消息树中，但**不进入后续请求上下文**；`prefix` 决定能否续写。
-- 页面可能以 `file://` 打开：不要假设存在 Service Worker、`fetch` 本地资源或可靠的 origin 隔离。
+- 页面只在 http(s) 下得到完整支持：`file://` 打开不再保证可用（Service Worker、部分存储与跨域行为都依赖安全上下文），不要在文档里再承诺双击 `dist/index.html`。
 - 大规模依赖（`mermaid`、Prism 语言包、归档模块）通过动态 `import()` 按需加载，新增重型依赖时保持同样的懒加载方式。
 
 ## 工作清单
@@ -155,4 +166,5 @@ src/
 2. 实现后跑 `pnpm type`、`pnpm lint`，必要时 `pnpm format`。
 3. 用 `pnpm dev` 在 http://localhost:8090 手动验证：桌面与窄屏布局、流式回复、深色主题、中英文文案。
 4. 涉及存储或归档的改动，验证「刷新后仍在」「导入导出可往返」「失败时原数据不丢」。
-5. 更新受影响的文档：本文件、`README*.md`、`src/services/chat/history/README.md`。
+5. 涉及 PWA 时用生产构建验证（`pnpm dev` 不注册 Service Worker）：`pnpm build` 后用任意静态服务器托管 `dist/`，确认 DevTools → Application 里清单、图标、Service Worker 都正常，断网刷新仍能打开外壳。
+6. 更新受影响的文档：本文件、`README*.md`、`src/services/chat/history/README.md`。
